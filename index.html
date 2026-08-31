@@ -1,0 +1,2648 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IronCore Gym — Informasi Alat Kebugaran</title>
+<meta name="description" content="Katalog alat gym lengkap: nama alat, merek, cara pemakaian, dan status ketersediaan. Tampilan responsif untuk desktop maupun Android.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='6' fill='%238C6A12'/><line x1='4' y1='12' x2='20' y2='12' stroke='white' stroke-width='2.5' stroke-linecap='round'/><rect x='5' y='8' width='3' height='8' rx='1' fill='white'/><rect x='16' y='8' width='3' height='8' rx='1' fill='white'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+
+/* =========================================================
+   WEBSITE STATIS — HTML + CSS MURNI (TANPA JAVASCRIPT)
+   Menu mobile, filter kategori, dan modal detail alat dibuat
+   dengan teknik CSS checkbox/radio "hack" (:checked ~ selector).
+   ========================================================= */
+
+/* ---------- DESIGN TOKENS ---------- */
+:root{
+  --steel:#c2c0c0;      /* latar halaman: abu-abu hangat seperti lantai/plat baja */
+  --plate:#ECEEE3;      /* latar kartu/tag */
+  --plate-2:#F5F6EF;    /* latar modal (sedikit lebih terang) */
+  --ink:#1c166b;        /* teks utama */
+  --ink-dim:#050505;    /* teks sekunder */
+  --amber-deep:#0a2975d5; /* aksen utama & status "terbatas": kuning hazard/caution */
+  --line:#C7C3B5;       /* garis/border */
+  --go:#080303;         /* status: tersedia */
+  --stop:#19216c;       /* status: maintenance */
+  --radius:14px;
+  --radius-sm:8px;
+  --font-display:'Big Shoulders','Arial Narrow',sans-serif;
+  --font-body:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --font-mono:'IBM Plex Mono','Courier New',monospace;
+  --container:1180px;
+  --shadow:0 12px 32px -12px rgba(32,30,26,.28);
+  --shadow-sm:0 6px 16px -8px rgba(32,30,26,.2);
+}
+
+/* ---------- RESET & BASE ---------- */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+   
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  position: relative;
+}
+html{scroll-behavior:smooth;}
+body{
+  font-family:var(--font-body);
+  background:var(--steel);
+  color:var(--ink);
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+
+main{
+   width: 100%;
+   overflow-x: hidden;
+}
+   
+img,svg{display:block;max-width:100%;}
+a{color:inherit;text-decoration:none;}
+ul,ol{list-style:none;}
+h1,h2,h3{line-height:1.1;}
+section[id]{scroll-margin-top:84px;}
+.container{max-width:var(--container);margin:0 auto;padding:0 24px;}
+
+.btn{
+    display:inline-block;
+    padding:8px 9px;
+    background:#067bdb;
+    color:white;
+    text-decoration:none;
+    border-radius:5px;
+    text-align:center;  
+}
+/* ---------- UTILITIES ---------- */
+.eyebrow{
+  display:inline-block;font-family:var(--font-mono);font-size:.75rem;font-weight:600;
+  letter-spacing:1.4px;text-transform:uppercase;color:var(--amber-deep);margin-bottom:10px;
+}
+.section-title{
+  font-family:var(--font-display);font-weight:800;text-transform:uppercase;
+  font-size:clamp(1.8rem,4vw,2.5rem);line-height:1.02;
+}
+.section-desc{font-size:.98rem;color:var(--ink-dim);max-width:540px;margin-top:12px;text-align: justify;}
+
+.tag-hole{
+  width:14px;height:14px;border-radius:50%;flex-shrink:0;
+  background:var(--steel);border:2px solid var(--line);
+}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.dot-go{background:var(--go);}
+.dot-amber{background:var(--amber-deep);}
+.dot-stop{background:var(--stop);}
+
+.stamp{
+  border:1.5px solid currentColor;border-radius:4px;padding:3px 9px;
+  font-family:var(--font-mono);font-size:.66rem;font-weight:700;letter-spacing:.4px;
+  text-transform:uppercase;transform:rotate(-3deg);flex-shrink:0;white-space:nowrap;
+}
+.stamp-go{color:var(--go);}
+.stamp-amber{color:var(--amber-deep);}
+.stamp-stop{color:var(--stop);}
+
+.btn-primary{
+  display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:var(--plate);
+  font-weight:700;font-size:.95rem;padding:15px 26px;border-radius:var(--radius-sm);
+  transition:background .2s,transform .2s;
+}
+.btn-primary:hover{background:var(--amber-deep);transform:translateY(-2px);}
+.btn-primary svg{width:18px;height:18px;}
+
+/* ---------- ACCESSIBILITY: FOCUS & MOTION ---------- */
+a:focus-visible,.btn-primary:focus-visible{
+  outline:2px solid var(--amber-deep);outline-offset:3px;border-radius:4px;
+}
+
+   
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms !important;animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;scroll-behavior:auto !important;
+  }
+}
+
+/* ---------- HEADER / NAV ---------- */
+.site-header{
+  position:sticky;top:0;z-index:100;
+  background:rgba(218,215,203,.88);backdrop-filter:blur(10px);
+  border-bottom:1.5px solid var(--line);
+}
+.header-inner{display:flex;align-items:center;justify-content:space-between;height:68px;}
+.logo{display:flex;align-items:center;gap:9px;}
+.logo-icon{width:26px;height:26px;color:var(--amber-deep);}
+.logo-text{font-family:var(--font-display);font-weight:800;font-size:1.4rem;text-transform:uppercase;letter-spacing:.3px;}
+.logo-text .accent{color:var(--amber-deep);}
+
+.nav-toggle{position:absolute;opacity:0;pointer-events:none;}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:10px;margin:-10px;}
+.hamburger span{width:22px;height:2px;background:var(--ink);border-radius:2px;transition:transform .3s,opacity .3s;}
+.nav-toggle:focus-visible + .hamburger{outline:2px solid var(--amber-deep);outline-offset:3px;border-radius:6px;}
+
+.nav-menu{display:flex;align-items:center;gap:30px;}
+.nav-menu a{font-size:.92rem;font-weight:600;color:var(--ink-dim);padding:6px 2px;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;}
+.nav-menu a:hover{color:var(--ink);border-color:var(--amber-deep);}
+
+@media (max-width:860px){
+  .hamburger{display:flex;}
+  .nav-menu{
+    position:fixed;top:68px;right:0;height:calc(100vh - 68px);width:280px;
+    background:var(--plate);flex-direction:column;align-items:flex-start;
+    padding:30px 26px;gap:22px;border-left:1.5px solid var(--line);
+    transform:translateX(100%);transition:transform .35s ease;overflow-y:auto;
+  }
+  .nav-toggle:checked ~ .nav-menu{transform:translateX(0);}
+  .nav-toggle:checked ~ .hamburger span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+  .nav-toggle:checked ~ .hamburger span:nth-child(2){opacity:0;}
+  .nav-toggle:checked ~ .hamburger span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+  .nav-menu a{font-size:1.05rem;width:100%;}
+}
+
+/* ---------- HERO ---------- */
+.hero{
+  padding:70px 0 80px;
+  background:
+    linear-gradient(
+      rgba(255, 250, 250, 0.55),
+      rgba(0,0,0,0.55)
+    ),
+    url('images/unimed.jpg');
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+}
+.hero-grid{display:grid;grid-template-columns:1fr;gap:44px;align-items:center;}
+@media (min-width:900px){.hero-grid{grid-template-columns:1.15fr .85fr;gap:40px;}}
+
+.hero-copy{animation:fadeUp .6s ease both;}
+.hero-eyebrow{font-family:var(--font-mono);font-size:.78rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--amber-deep);margin-bottom:18px;}
+.hero h1{
+  font-family:var(--font-display);font-weight:800;text-transform:uppercase;
+  font-size:clamp(2.3rem,6vw,4.1rem);line-height:.98;letter-spacing:.2px;margin-bottom:20px;
+}
+.hero h1 .mark{color:var(--amber-deep);}
+.hero-desc{font-size:1.05rem;color:var(--ink-dim);max-width:480px;margin-bottom:30px;}
+
+.hero-preview{
+  display:flex;
+  justify-content:center;
+  animation:fadeUp .7s ease .1s both;
+  width: 100%;
+  height: 100%;
+}
+.preview-tag{  width:min(600px,90vw);
+  height:380px;
+
+  background:var(--plate);
+  border-radius:24px;
+  overflow:hidden;
+
+  box-shadow:var(--shadow);
+  
+}
+.search-box{
+    margin:20px 0;
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.search-box input{
+    flex:1;
+    width:auto;
+    padding:12px 15px;
+    border:1px solid #ccc;
+    border-radius:8px;
+    font-size:16px;
+}
+
+.reset-btn{
+    padding:12px 20px;
+    border:none;
+    border-radius:8px;
+    background:#1e2a78;
+    color:white;
+    font-weight:600;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.reset-btn:hover{
+    background:#3145c7;
+}@media (max-width:768px){
+
+    .hero-preview{
+        width:100%;
+        height:auto;
+    }
+
+    .preview-tag{
+        width:90%;
+        height:auto;
+        min-height:auto;
+        margin:0 auto;
+        padding:15px;
+    }
+
+    .preview-tag img{
+        width:100%;
+        height:auto;
+        display:block;
+        border-radius:15px;
+    }
+
+}
+.campus-image{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center;
+}
+
+.info-layout{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:60px;
+}
+
+.info-content{
+    flex:1;
+}
+
+.preview-tag{
+    overflow:hidden;
+    border-radius:30px;
+    width:650px;
+}
+
+.campus-image{
+    width:100%;
+    display:block;
+}
+@media (max-width:768px){
+
+    .info-layout{
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        text-align:center;
+        gap:30px;
+    }
+
+    .info-content{
+        width:100%;
+    }
+
+    .section-title{
+        font-size:3rem;
+        line-height:1;
+    }
+
+    .section-desc{
+        text-align:center;
+    }
+
+    .preview-tag{
+        width:90%;
+        margin:0 auto;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        padding:15px;
+    }
+
+    .campus-image{
+        width:100%;
+        height:auto;
+        display:block;
+    }
+
+}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+
+/* ---------- CARD "TAG" BUILDING BLOCKS (dipakai ulang di grid, hero, modal) ---------- */
+.card-top-row{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.card-unit{font-family:var(--font-mono);font-size:.72rem;color:var(--ink-dim);letter-spacing:.5px;flex-grow:1;}
+.card-kicker{font-family:var(--font-mono);font-size:.72rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--ink-dim);margin-bottom:6px;}
+.card-icon{width:50px;height:50px;color:var(--ink);margin-bottom:14px;}
+.card-title{font-family:var(--font-display);font-size:1.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px;line-height:1.05;margin-bottom:4px;}
+.card-brand{font-size:.88rem;font-weight:600;color:var(--ink-dim);}
+
+/* ---------- FILTER & LEGEND ---------- */
+.filter-radio{position:absolute;opacity:0;pointer-events:none;}
+.filter-row{display:flex;flex-direction:column;gap:16px;margin-top:28px;}
+@media (min-width:768px){.filter-row{flex-direction:row;justify-content:space-between;align-items:center;flex-wrap:wrap;}}
+
+.filter-tabs{display:flex;flex-wrap:wrap;gap:10px;}
+.filter-tab{
+  padding:10px 18px;border:1.5px solid var(--line);border-radius:var(--radius-sm);
+  background:var(--plate);color:var(--ink-dim);font-size:.88rem;font-weight:600;
+  cursor:pointer;transition:all .2s;
+}
+.filter-tab:hover{border-color:var(--ink-dim);color:var(--ink);}
+
+#filter-all:checked ~ .filter-row .filter-tabs label[for="filter-all"],
+#filter-upper:checked ~ .filter-row .filter-tabs label[for="filter-upper"],
+#filter-lower:checked ~ .filter-row .filter-tabs label[for="filter-lower"],
+#filter-fullbody:checked ~ .filter-row .filter-tabs label[for="filter-fullbody"]{
+  background:var(--ink);border-color:var(--ink);color:var(--plate);
+}
+#filter-all:focus-visible ~ .filter-row .filter-tabs label[for="filter-all"],
+#filter-upper:focus-visible ~ .filter-row .filter-tabs label[for="filter-upper"],
+#filter-lower:focus-visible ~ .filter-row .filter-tabs label[for="filter-lower"],
+#filter-fullbody:focus-visible ~ .filter-row .filter-tabs label[for="filter-fullbody"]{
+  outline:2px solid var(--amber-deep);outline-offset:2px;
+}
+
+.status-legend{display:flex;flex-wrap:wrap;gap:18px;}
+.legend-item{display:inline-flex;align-items:center;gap:7px;font-size:.82rem;font-weight:600;color:var(--ink-dim);}
+
+/* filter kategori: sembunyikan kartu yang tidak cocok (murni CSS, tanpa JS) */
+#filter-upper:checked ~ .equipment-grid .equipment-item:not(.cat-upper){display:none;}
+#filter-lower:checked ~ .equipment-grid .equipment-item:not(.cat-lower){display:none;}
+#filter-fullbody:checked ~ .equipment-grid .equipment-item:not(.cat-fullbody){display:none;}
+
+/* ---------- EQUIPMENT GRID ---------- */
+.equipment-section{padding:80px 0;}
+.equipment-grid{display:grid;grid-template-columns:1fr;gap:22px;margin-top:32px;}
+@media (min-width:640px){.equipment-grid{grid-template-columns:repeat(2,1fr);}}
+@media (min-width:1024px){.equipment-grid{grid-template-columns:repeat(3,1fr);}}
+
+.card{
+  background:var(--plate);border:1.5px solid var(--line);border-radius:var(--radius);
+  padding:24px 22px 22px;height:100%;display:flex;flex-direction:column;
+  box-shadow:var(--shadow-sm);transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease;
+}
+.card:hover{transform:translateY(-4px);box-shadow:var(--shadow);border-color:var(--ink-dim);}
+.card-desc{font-size:.9rem;color:var(--ink-dim);margin:12px 0 20px;flex-grow:1;}
+.btn-detail{
+  display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:.9rem;color:var(--ink);
+  border-top:1.5px dashed var(--line);padding-top:14px;cursor:pointer;transition:gap .2s,color .2s;
+}
+.btn-detail:hover{color:var(--amber-deep);gap:12px;}
+.btn-detail svg{width:16px;height:16px;}
+.modal-toggle:focus-visible + .card .btn-detail{outline:2px solid var(--amber-deep);outline-offset:3px;border-radius:6px;}
+
+/* ---------- MODAL (detail alat) ---------- */
+.modal-toggle{position:absolute;opacity:0;pointer-events:none;}
+.modal{display:none;position:fixed;inset:0;z-index:1000;align-items:center;justify-content:center;padding:20px;}
+.modal-toggle:checked ~ .modal{display:flex;}
+.modal-backdrop{position:absolute;inset:0;background:rgba(32,30,26,.55);backdrop-filter:blur(3px);cursor:pointer;}
+
+.modal-box{
+  position:relative;background:var(--plate-2);border:1.5px solid var(--line);border-radius:18px;
+  max-width:560px;width:100%;max-height:86vh;overflow-y:auto;
+  padding:32px 26px 26px;box-shadow:0 30px 60px -20px rgba(32,30,26,.4);
+  animation:modalIn .25s ease;
+}
+@keyframes modalIn{from{opacity:0;transform:scale(.96) translateY(12px);}to{opacity:1;transform:scale(1) translateY(0);}}
+
+.modal-close{
+  position:absolute;top:18px;right:18px;width:38px;height:38px;
+  display:flex;align-items:center;justify-content:center;border-radius:50%;
+  background:var(--plate);border:1.5px solid var(--line);color:var(--ink-dim);
+  cursor:pointer;transition:all .2s;
+}
+.modal-close:hover{background:var(--ink);color:var(--plate);border-color:var(--ink);}
+.modal-close svg{width:16px;height:16px;}
+
+.modal-top-row{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-right:44px;}
+.modal-unit{font-family:var(--font-mono);font-size:.75rem;color:var(--ink-dim);letter-spacing:.5px;}
+.modal-top{display:flex;gap:16px;margin-bottom:16px;}
+.modal-icon{width:52px;height:52px;flex-shrink:0;color:var(--ink);background:var(--plate);border:1.5px solid var(--line);border-radius:12px;padding:10px;}
+.modal-kicker{font-family:var(--font-mono);font-size:.72rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--ink-dim);margin-bottom:3px;}
+.modal-top h3{font-family:var(--font-display);font-size:1.55rem;font-weight:800;text-transform:uppercase;line-height:1.05;margin-bottom:3px;}
+.modal-brand{font-size:.88rem;font-weight:600;color:var(--ink-dim);}
+.modal-desc{font-size:.92rem;color:var(--ink-dim);margin-bottom:22px;padding-bottom:22px;border-bottom:1.5px dashed var(--line);}
+
+.modal-section{margin-bottom:22px;}
+.modal-section h4{display:flex;align-items:center;gap:8px;font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:14px;}
+.modal-section h4 svg{width:16px;height:16px;color:var(--amber-deep);}
+
+.info-list li{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:.88rem;}
+.info-list li span{color:var(--ink-dim);}
+.info-list li strong{font-family:var(--font-mono);font-weight:600;text-align:right;text-transform:uppercase;font-size:.83rem;}
+
+.steps-list{counter-reset:step;display:flex;flex-direction:column;gap:12px;}
+.steps-list li{counter-increment:step;position:relative;padding-left:34px;font-size:.88rem;color:var(--ink-dim);line-height:1.55;}
+.steps-list li::before{
+  content:counter(step);position:absolute;left:0;top:0;width:22px;height:22px;border-radius:50%;
+  background:var(--ink);color:var(--plate);font-family:var(--font-mono);font-weight:700;font-size:.72rem;
+  display:flex;align-items:center;justify-content:center;
+}
+
+.modal-status{
+  display:flex;align-items:center;gap:10px;padding:13px 16px;border-radius:var(--radius-sm);
+  border:1.5px solid currentColor;font-weight:700;font-size:.88rem;
+}
+.modal-status .dot{background:currentColor;}
+.status-go{color:var(--go);background:rgba(76,106,56,.08);}
+.status-amber{color:var(--amber-deep);background:rgba(140,106,18,.08);}
+.status-stop{color:var(--stop);background:rgba(150,57,42,.08);}
+
+/* ---------- ABOUT (tenang & sederhana, tanpa banyak dekorasi) ---------- */
+.about-section{padding:80px 0;background:var(--plate-2);border-top:1.5px solid var(--line);border-bottom:1.5px solid var(--line);}
+.about-head{max-width:560px;margin-bottom:40px;}
+.about-grid{display:grid;grid-template-columns:1fr;gap:28px;}
+@media (min-width:640px){.about-grid{grid-template-columns:repeat(2,1fr);}}
+@media (min-width:1024px){.about-grid{grid-template-columns:repeat(4,1fr);}}
+.about-icon{width:32px;height:32px;color:var(--amber-deep);margin-bottom:16px;}
+.about-card h3{font-size:1rem;font-weight:700;margin-bottom:8px;}
+.about-card p{font-size:.88rem;color:var(--ink-dim);}
+
+/* ---------- FOOTER ---------- */
+.site-footer{padding:56px 0 26px;}
+.footer-top{display:grid;grid-template-columns:1fr;gap:36px;padding-bottom:36px;border-bottom:1.5px solid var(--line);}
+@media (min-width:768px){.footer-top{grid-template-columns:1.3fr 1fr 1fr;}}
+.footer-brand p{font-size:.9rem;color:var(--ink-dim);margin-top:12px;max-width:280px;}
+.footer-col h4{font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-dim);margin-bottom:14px;}
+.footer-links{display:flex;flex-direction:column;gap:10px;}
+.footer-links a{font-size:.92rem;font-weight:500;}
+.footer-links a:hover{color:var(--amber-deep);}
+.footer-contact li{display:flex;gap:10px;align-items:flex-start;font-size:.9rem;color:var(--ink-dim);margin-bottom:12px;}
+.footer-contact svg{width:17px;height:17px;color:var(--amber-deep);flex-shrink:0;margin-top:2px;}
+.footer-bottom{padding-top:22px;text-align:center;font-size:.82rem;color:var(--ink-dim);}
+
+</style>
+</head>
+<body>
+
+<!-- SPRITE IKON (SVG symbol/use — dipakai berulang tanpa duplikasi kode) -->
+<svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden;" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="ic-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="2" y1="12" x2="22" y2="12"/><rect x="3" y="8" width="3" height="8" rx="1"/><rect x="18" y="8" width="3" height="8" rx="1"/>
+  </symbol>
+  <symbol id="ic-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+  </symbol>
+  <symbol id="ic-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/>
+  </symbol>
+  <symbol id="ic-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><circle cx="12" cy="7.5" r=".6" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="ic-steps" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/>
+    <circle cx="4.5" cy="6" r="1.1" fill="currentColor" stroke="none"/><circle cx="4.5" cy="12" r="1.1" fill="currentColor" stroke="none"/><circle cx="4.5" cy="18" r="1.1" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="ic-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/>
+  </symbol>
+  <symbol id="ic-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><polyline points="9 12 11.5 14.5 15.5 9.5"/>
+  </symbol>
+  <symbol id="ic-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="3.2"/><path d="M12 3v2.2M12 18.8V21M21 12h-2.2M5.2 12H3M18.4 5.6l-1.6 1.6M7.2 16.8l-1.6 1.6M18.4 18.4l-1.6-1.6M7.2 7.2 5.6 5.6"/>
+  </symbol>
+  <symbol id="ic-wind" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3 8h11a3 3 0 1 0-3-3"/><path d="M3 16h14a3 3 0 1 1-3 3"/>
+  </symbol>
+  <symbol id="ic-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 21s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.3"/>
+  </symbol>
+  <symbol id="ic-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6.5 3h3l1.5 4.5-2 1.5a12 12 0 0 0 6 6l1.5-2 4.5 1.5v3c0 1-1 2-2 2-8 0-14.5-6.5-14.5-14.5 0-1 1-2 2-2z"/>
+  </symbol>
+  <symbol id="ic-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="5" width="18" height="14" rx="2"/><polyline points="3 7 12 13 21 7"/>
+  </symbol>
+
+  <symbol id="ic-treadmill" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="4" y="28" width="26" height="8" rx="4"/><line x1="26" y1="28" x2="38" y2="10"/><line x1="38" y1="10" x2="38" y2="18"/><rect x="33" y="6" width="10" height="6" rx="1"/>
+  </symbol>
+  <symbol id="ic-bike" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="17" cy="32" r="9"/><line x1="17" y1="32" x2="27" y2="14"/><line x1="27" y1="14" x2="36" y2="14"/><line x1="27" y1="14" x2="22" y2="32"/><line x1="36" y1="10" x2="36" y2="16"/>
+  </symbol>
+  <symbol id="ic-rowing" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="4" y1="38" x2="42" y2="38"/><rect x="13" y="31" width="9" height="7" rx="1.5"/><line x1="21" y1="34" x2="38" y2="18"/><line x1="4" y1="38" x2="4" y2="33"/>
+  </symbol>
+  <symbol id="ic-legpress" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="6" y="26" width="16" height="9" rx="2"/><line x1="22" y1="26" x2="36" y2="12"/><rect x="29" y="5" width="13" height="13" rx="2" transform="rotate(35 35.5 11.5)"/>
+  </symbol>
+  <symbol id="ic-latpulldown" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="24" y1="4" x2="24" y2="40"/><line x1="14" y1="10" x2="34" y2="10"/><line x1="24" y1="10" x2="24" y2="18"/><rect x="18" y="34" width="12" height="6" rx="1.5"/>
+  </symbol>
+  <symbol id="ic-cable" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="8" y1="6" x2="8" y2="40"/><line x1="40" y1="6" x2="40" y2="40"/><circle cx="8" cy="10" r="2.4" fill="currentColor" stroke="none"/><circle cx="40" cy="10" r="2.4" fill="currentColor" stroke="none"/><line x1="8" y1="10" x2="24" y2="27"/><line x1="40" y1="10" x2="24" y2="27"/>
+  </symbol>
+  <symbol id="ic-dumbbell" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="10" cy="24" r="7"/><circle cx="38" cy="24" r="7"/><line x1="17" y1="24" x2="31" y2="24"/>
+  </symbol>
+  <symbol id="ic-barbell" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="4" y1="24" x2="44" y2="24"/><rect x="6" y="16" width="6" height="16" rx="1.5"/><rect x="36" y="16" width="6" height="16" rx="1.5"/><rect x="14" y="19" width="4" height="10" rx="1"/><rect x="30" y="19" width="4" height="10" rx="1"/>
+  </symbol>
+  <symbol id="ic-kettlebell" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M17 16a7 7 0 0 1 14 0"/><circle cx="24" cy="30" r="12"/>
+  </symbol>
+</svg>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="#beranda" class="logo">
+      <svg class="logo-icon" aria-hidden="true"><use href="#ic-logo"></use></svg>
+      <span class="logo-text">LAB<span class="accent">Fitnes</span></span>
+    </a>
+    <input type="checkbox" id="nav-toggle" class="nav-toggle">
+    <label for="nav-toggle" class="hamburger" aria-label="Buka menu navigasi">
+      <span></span><span></span><span></span>
+    </label>
+    <nav class="nav-menu">
+      <a href="#beranda">Beranda</a>
+      <a href="#alat">Alat</a>
+      <a href="#tentang">Tentang</a>
+      <a href="#kontak">Kontak</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- HERO -->
+  <section id="beranda" class="hero">
+    <div class="container hero-grid">
+      <div class="hero-copy">
+        <p class="hero-eyebrow">Lab Fitnes</p>
+        <h1>Lab Fitnes<br>Fakultas ILmu Keolahragaan &amp; Kesehatan  <br><span class="mark">UNIVERSITAS NEGERI MEDAN</span>.</h1>
+        <p class="hero-desc">Informasi lengkap alat-alat yang berada di Lab Fitnes Fakultas Ilmu Keolahragaan di Universitas Negeri Medan.</p>
+        <a href="#informasi" class="btn-primary">Lihat Informasi<svg aria-hidden="true"><use href="#ic-arrow"></use></svg></a>
+        </div>
+      <div class="hero-preview" aria-hidden="true">
+      <div class="preview-tag">
+      <img src="fakultas.jpeg" alt="Universitas" class="campus-image">
+      </div>
+    </div>
+  </section>
+
+<!-- Informasi Awal -->  
+<section id="informasi" class="equipment-section">
+    <div class="container">
+
+        <div class="info-layout">
+
+            <!-- Kiri -->
+            <div class="info-content">
+                <p class="eyebrow">Informasi Lab</p>
+                <h2 class="section-title">LAB FITNES FIKK</h2>
+
+                <p class="section-desc">
+                    Gym atau Laboratorium Kebugaran Fakultas Ilmu Keolahragaan Universitas Negeri Medan (UNIMED) merupakan fasilitas yang mendukung kegiatan pembelajaran, penelitian, dan latihan kebugaran mahasiswa. Fasilitas ini dilengkapi berbagai alat olahraga yang digunakan untuk meningkatkan kekuatan, daya tahan, dan kebugaran fisik serta membantu mahasiswa memahami praktik ilmu keolahragaan secara langsung. Selain sebagai sarana pendidikan, gym ini juga mendukung pengembangan kesehatan dan prestasi olahraga di lingkungan kampus.
+                </p>
+
+                <a href="#alat" class="btn-primary">
+                    Lihat Informasi Alat Lengkap
+                    <svg aria-hidden="true">
+                        <use href="#ic-arrow"></use>
+                    </svg>
+                </a>
+            </div>
+
+            <!-- Kanan -->
+            <div class="preview-tag">
+                <img src="rlab.jpeg" alt="Universitas" class="campus-image">
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+
+  <!-- KATALOG ALAT -->
+  <section id="alat" class="equipment-section">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">Informasi Alat</p>
+        <h2 class="section-title">35 Alat, 3 Kategori</h2>
+        <p class="section-desc">Gunakan filter untuk mempersempit pilihan, lalu ketuk &ldquo;Lihat Detail&rdquo; untuk cara pemakaian lengkap.</p>
+      </div>
+
+      <input type="radio" name="filter" id="filter-all" class="filter-radio" checked>
+      <input type="radio" name="filter" id="filter-upper" class="filter-radio">
+      <input type="radio" name="filter" id="filter-lower" class="filter-radio">
+      <input type="radio" name="filter" id="filter-fullbody" class="filter-radio">
+
+      
+      <div class="filter-row">
+        <div class="filter-tabs">
+          <label for="filter-all" class="filter-tab">Semua</label>
+          <label for="filter-upper" class="filter-tab">Upper Body</label>
+          <label for="filter-lower" class="filter-tab">Lower Body</label>
+          <label for="filter-fullbody" class="filter-tab">Full Body</label>
+        </div>
+      </div>
+      
+      <div class="search-box">
+          <input
+              type="text"
+              id="searchInput"
+              placeholder="Cari nama alat..."
+              onkeyup="searchEquipment()">
+              <button type="button" class="reset-btn" onclick="resetSearch()">
+              Reset
+              </button>
+      </div>
+      
+      <div class="equipment-grid">
+
+        <!-- 01 TREADMILL -->
+        <article class="equipment-item cat-fullbody">
+          <input type="checkbox" id="modal-treadmill" class="modal-toggle">
+          <div class="card">
+            <div class="card-top-row">
+              <span class="tag-hole"></span><span class="card-unit">UNIT NO. 01</span>
+            </div>
+            <div class="card-kicker">Full Body</div>
+            <div class="gambar.alat">
+            <img src="1.jpeg" alt="Universitas" class="campus-image">
+            </div>
+            <h3 class="card-title">Assisted Pull-Upl</h3>
+            <p class="card-brand">Technogym</p>
+            <p class="card-desc">Assisted pull-up memiliki manfaat utama untuk membangun kekuatan otot tubuh bagian atas (upper body) secara bertahap sebelum Anda mampu melakukan pull-up biasa.</p>
+            <label for="modal-treadmill" class="btn-detail">Lihat Detail <svg aria-hidden="true"><use href="#ic-arrow"></use></svg></label>
+          </div>
+          <div class="modal">
+            <label for="modal-treadmill" class="modal-backdrop" aria-hidden="true"></label>
+            <div class="modal-box" role="dialog" aria-label="Detail Treadmill">
+              <label for="modal-treadmill" class="modal-close" aria-label="Tutup detail"><svg aria-hidden="true"><use href="#ic-close"></use></svg></label>
+              <div class="modal-top-row"><span class="tag-hole"></span><span class="modal-unit">UNIT NO. 01</span></div>
+              <div class="modal-top">
+                <div class="gambar.alat">
+            <img src="1.jpeg" alt="Universitas" class="campus-image">
+            </div>
+                <div><div class="modal-kicker">Full Body</div><h3>Assisted Pull-Upl</h3><p class="modal-brand">Technogym</p></div>
+              </div>
+              <p class="modal-desc">1.	Menargetkan Otot Punggung dan Lengan secara Efektif</p>
+              <p class="modal-desc">2.	Membantu Menguasai Teknik Pull-Up yang Benar.</p>
+              <p class="modal-desc">3.	Beban Latihan Lebih Mudah Diatur (Progressive Overload).</p>
+              <p class="modal-desc">4.	Melatih Kekuatan Genggaman (Grip Strength).</p>
+              <p class="modal-desc">5.	Memperbaiki Postur Tubuh.</p>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-info"></use></svg>Informasi Alat</h4>
+                <ul class="info-list">
+                  <li><span>Target Latihan</span><strong>Otot tubuh bagian atas (upper body)</strong></li>
+                  <li><span>Kapasitas Beban</span><strong>150 kg</strong></li>
+                  <li><span>Level</span><strong>Pemula–Lanjutan</strong></li>
+                </ul>
+              </div>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-steps"></use></svg>Cara Pemakaian</h4>
+                <ol class="steps-list">
+                  <a href="https://www.youtube.com/watch?v=gnElpp3Fm50&pp=ygUhQ2FyYSBNZW5nZ3VuYWthbiBBc3Npc3RlZCBQdWxsLVVw" class="btn" target="_blank">Lihat Cara Memakai Alat</a>
+                  <li>Memakai alat Assisted Pull-Up, pertama-tama pastikan mesin dalam kondisi mati dan aman untuk digunakan.</li>
+                  <li>Sesuaikan berat beban yang akan digunakan untuk membantu Anda dalam melakukan pull-up. Semakin berat beban yang dipilih, semakin besar bantuan yang diberikan.</li>
+                  <li>Genggam pegangan mesin dengan kedua tangan, pastikan posisi tubuh Anda stabil dan kaki berada di atas platform yang disediakan.</li>
+                  <li>Tarik tubuh Anda ke atas dengan menggunakan otot punggung dan lengan, hingga dagu melewati pegangan. Pastikan untuk menjaga postur tubuh tetap tegak dan tidak membungkuk.</li>
+                </ol>
+              </div>
+              <div class="modal-status status-go"><i class="dot"></i>Tersedia 1 Unit</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 02 SEPEDA STATIS -->
+      <article class="equipment-item cat-fullbody">
+          <input type="checkbox" id="modal-bike" class="modal-toggle">
+          <div class="card">
+            <div class="card-top-row">
+              <span class="tag-hole"></span><span class="card-unit">UNIT NO. 02</span>
+            </div>
+            <div class="card-kicker">Full Body</div>
+            <div class="gambar.alat">
+            <img src="2.jpeg" alt="Universitas" class="campus-image">
+            </div>
+            <h3 class="card-title">Dumbble &amp; Kettlebell </h3>
+            <p class="card-brand">Technogym</p>
+            <p class="card-desc">Manfaat utama latihan dengan dumbbell adalah memperbaiki ketidak seimbangan kekuatan antara sisi kanan dan kiri tubuh karena kedua tangan bekerja secara mandiri.</p>
+            <label for="modal-bike" class="btn-detail">Lihat Detail <svg aria-hidden="true"><use href="#ic-arrow"></use></svg></label>
+          </div>
+          <div class="modal">
+            <label for="modal-bike" class="modal-backdrop" aria-hidden="true"></label>
+            <div class="modal-box" role="dialog" aria-label="Detail Sepeda Statis">
+              <label for="modal-bike" class="modal-close" aria-label="Tutup detail"><svg aria-hidden="true"><use href="#ic-close"></use></svg></label>
+              <div class="modal-top-row"><span class="tag-hole"></span><span class="modal-unit">UNIT NO. 02</span></div>
+              <div class="modal-top">
+                <div class="gambar.alat">
+            <img src="2.jpeg" alt="Universitas" class="campus-image">
+            </div>
+                <div><div class="modal-kicker">Full Body</div><h3>Dumbell &amp; Kettlebell</h3><p class="modal-brand">Technogym</p></div>
+              </div>
+              <p class="modal-desc">1. Menyeimbangkan Kekuatan Otot: Sisi tubuh yang lebih kuat tidak bisa membantu sisi yang lemah. Hal ini memaksa kedua sisi berkembang secara seimbang.</p>
+              <p class="modal-desc">2. Membakar Kalori Lebih Banyak: Gerakan menahan beban meningkatkan massa otot. Otot yang padat membakar kalori lebih banyak, bahkan saat Anda istirahat.</p>
+              <p class="modal-desc">3. Meningkatkan Kepadatan Tulang: Tekanan dari angkat beban merangsang sel tulang baru. Hal ini mencegah risiko pengeroposan tulang (osteoporosis) di masa tua.</p>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-info"></use></svg>Informasi Alat</h4>
+                <ul class="info-list">
+                  <li><span>Target Latihan</span><strong>Lengan, Dada &amp; Otot Inti (Core)</strong></li>
+                  <li><span>Kapasitas Beban</span><strong>160 kg</strong></li>
+                  <li><span>Level</span><strong>Semua level</strong></li>
+                </ul>
+              </div>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-steps"></use></svg>Cara Pemakaian</h4>
+                <ol class="steps-list">
+                  <a href="https://www.youtube.com/watch?v=byGit7i8Dmo&pp=ygUZY2FyYSBtZW5nZ3VuYWthbiBkdW1iYmVsbA%3D%3D" class="btn" target="_blank">Lihat Cara Memakai Alat</a>
+                  <li>Memakai dumbbell atau kettlebell, pertama-tama pastikan Anda memilih beban yang sesuai dengan kemampuan Anda. Mulailah dengan beban yang lebih ringan jika Anda pemula.</li>
+                  <li>Pastikan posisi tubuh Anda stabil dan seimbang sebelum mengangkat beban.</li>
+                  <li>Gunakan teknik yang benar saat mengangkat dan menurunkan beban untuk menghindari cedera. Jaga punggung tetap lurus dan hindari gerakan yang tiba-tiba.</li>
+                  <li>Lakukan gerakan secara perlahan dan terkendali, fokus pada otot yang sedang dilatih. Jangan mengorbankan bentuk untuk jumlah repetisi.</li>
+                  <li>Setelah selesai, turunkan beban dengan hati-hati dan simpan kembali ke tempatnya. Jangan biarkan beban jatuh atau tersangkut di tempat yang tidak aman.</li>
+                </ol>
+              </div>
+              <div class="modal-status status-go"><i class="dot"></i>Tersedia — 2.5 kg (2), 5 kg (2), 6 kg (1), 8 kg (2), 9 kg (2), 10 kg (2) siap digunakan</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 03 MESIN DAYUNG -->
+        <article class="equipment-item cat-upper">
+          <input type="checkbox" id="modal-rowing" class="modal-toggle">
+          <div class="card">
+            <div class="card-top-row">
+              <span class="tag-hole"></span><span class="card-unit">UNIT NO. 03</span>
+            </div>
+            <div class="card-kicker">Upper Body</div>
+            <div class="gambar.alat">
+            <img src="3.jpeg" alt="Universitas" class="campus-image">
+            </div>
+            <h3 class="card-title">Rotary Torso</h3>
+            <p class="card-brand">TechnogymD</p>
+            <p class="card-desc">Latihan menggunakan mesin Rotary Torso memberikan banyak manfaat penting, tidak hanya untuk estetika penampilan tetapi juga untuk kesehatan fisik dan performa olahraga Anda.</p>
+            <label for="modal-rowing" class="btn-detail">Lihat Detail <svg aria-hidden="true"><use href="#ic-arrow"></use></svg></label>
+          </div>
+          <div class="modal">
+            <label for="modal-rowing" class="modal-backdrop" aria-hidden="true"></label>
+            <div class="modal-box" role="dialog" aria-label="Detail Mesin Dayung">
+              <label for="modal-rowing" class="modal-close" aria-label="Tutup detail"><svg aria-hidden="true"><use href="#ic-close"></use></svg></label>
+              <div class="modal-top-row"><span class="tag-hole"></span><span class="modal-unit">UNIT NO. 03</span></div>
+              <div class="modal-top">
+                <div class="gambar.alat">
+            <img src="3.jpeg" alt="Universitas" class="campus-image">
+            </div>
+                <div><div class="modal-kicker">Upper Body</div><h3>Rotary Torso</h3><p class="modal-brand">TechnogymD</p></div>
+              </div>
+              <p class="modal-desc">1. Membentuk Pinggang Lebih Ramping.</p>
+              <p class="modal-desc">2. Memperkuat Otot Inti (Core Stability).</p>
+              <p class="modal-desc">3. Memperbaiki Postur Tubuh.</p>
+              <p class="modal-desc">4. Mengurangi Risiko Cedera Punggung.</p>
+              <p class="modal-desc">5. Meningkatkan Performa Olahraga.</p>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-info"></use></svg>Informasi Alat</h4>
+                <ul class="info-list">
+                  <li><span>Target Latihan</span><strong>Punggung, lengan &amp; kaki (full-body)</strong></li>
+                  <li><span>Kapasitas Beban</span><strong>135 kg</strong></li>
+                  <li><span>Level</span><strong>Menengah–Lanjutan</strong></li>
+                </ul>
+              </div>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-steps"></use></svg>Cara Pemakaian</h4>
+                <ol class="steps-list">
+                  <a href="https://www.youtube.com/watch?v=iF5dVJqEs_Q&pp=ygUdY2FyYSBtZW5nZ3VuYWthbiBSb3RhcnkgVG9yc28%3D" class="btn" target="_blank">Lihat Cara Memakai Alat</a>
+                  <li>Duduk di kursi mesin, pastikan punggung menempel pada sandaran dan kaki menapak di lantai.</li>
+                  <li>Genggam pegangan mesin dengan kedua tangan, pastikan posisi tubuh stabil.</li>
+                  <li>Putar tubuh ke satu sisi secara perlahan, fokus pada otot inti (core) dan hindari gerakan mendadak.</li>
+                  <li>Kembali ke posisi awal dengan kontrol, lalu ulangi ke sisi lainnya.</li>
+                </ol>
+              </div>
+              <div class="modal-status status-go"><i class="dot"></i>Tersedia 1 Unit</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 04 andominal -->
+        <article class="equipment-item cat-upper">
+          <input type="checkbox" id="modal-abdominal" class="modal-toggle">
+          <div class="card">
+            <div class="card-top-row">
+              <span class="tag-hole"></span><span class="card-unit">UNIT NO. 04</span>
+            </div>
+            <div class="card-kicker">Upper Body</div>
+            <div class="gambar.alat">
+            <img src="abdominal.jpeg" alt="Universitas" class="campus-image">
+            </div>
+            <h3 class="card-title">Abdominal Crunch</h3>
+            <p class="card-brand">Technogym</p>
+            <p class="card-desc">Abdominal Crunch Machine adalah alat fitness yang dirancang khusus untuk mengisolasi dan melatih otot perut bagian depan (rectus abdominis atau yang populer dengan sebutan otot six-pack). .</p>
+            <label for="modal-abdominal" class="btn-detail">Lihat Detail <svg aria-hidden="true"><use href="#ic-arrow"></use></svg></label>
+          </div>
+          <div class="modal">
+            <label for="modal-abdominal" class="modal-backdrop" aria-hidden="true"></label>
+            <div class="modal-box" role="dialog" aria-label="Detail Abdominal Crunch Machine">
+              <label for="modal-abdominal" class="modal-close" aria-label="Tutup detail"><svg aria-hidden="true"><use href="#ic-close"></use></svg></label>
+              <div class="modal-top-row"><span class="tag-hole"></span><span class="modal-unit">UNIT NO. 04</span></div>
+              <div class="modal-top">
+                <div class="gambar.alat">
+            <img src="abdominal.jpeg" alt="Universitas" class="campus-image">
+            </div>
+                <div><div class="modal-kicker">Upper Body</div><h3>Abdominal Crunch Machine</h3><p class="modal-brand">Technogym</p></div>
+              </div>
+              <p class="modal-desc">Abdominal Crunch Machine adalah alat fitness yang dirancang khusus untuk mengisolasi dan melatih otot perut bagian depan (rectus abdominis atau yang populer dengan sebutan otot six-pack).</p>
+              <p class="modal-desc">1. Manfaat utama dari penggunaan Abdominal Crunch Machine adalah membantu memperkuat dan membentuk otot perut, meningkatkan stabilitas inti tubuh, serta mendukung postur tubuh yang lebih baik. Dengan latihan yang konsisten, alat ini dapat membantu mengurangi lemak di area perut dan meningkatkan definisi otot.</p>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-info"></use></svg>Informasi Alat</h4>
+                <ul class="info-list">
+                  <li><span>Target Latihan</span><strong>Paha depan, belakang &amp; bokong</strong></li>
+                  <li><span>Kapasitas Beban</span><strong>300 kg (beban plat)</strong></li>
+                  <li><span>Level</span><strong>Pemula–Lanjutan</strong></li>
+                </ul>
+              </div>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-steps"></use></svg>Cara Pemakaian</h4>
+                <ol class="steps-list">
+                  <a href="https://www.youtube.com/shorts/f0tJV1k5BNs" class="btn" target="_blank">Lihat Cara Memakai Alat</a>
+                  <li>Duduk di kursi mesin, pastikan punggung menempel pada sandaran dan kaki menapak di lantai.</li>
+                  <li>Genggam pegangan mesin dengan kedua tangan, pastikan posisi tubuh stabil.</li>
+                  <li>Tekan bantalan ke arah bawah dengan menggunakan otot perut, fokus pada kontraksi otot dan hindari menarik leher atau menggunakan momentum.</li>
+                  <li>Kembali ke posisi awal dengan kontrol, lalu ulangi sesuai jumlah repetisi yang diinginkan.</li>
+                </ol>
+              </div>
+              <div class="modal-status status-go"><i class="dot"></i>Tersedia 1 Unit</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 05 LAT PULLDOWN -->
+        <article class="equipment-item cat-lower">
+          <input type="checkbox" id="modal-latpulldown" class="modal-toggle">
+          <div class="card">
+            <div class="card-top-row">
+              <span class="tag-hole"></span><span class="card-unit">UNIT NO. 05</span>
+            </div>
+            <div class="card-kicker">Lower Body</div>
+            <div class="gambar.alat">
+            <img src="multi hip.jpeg" alt="Universitas" class="campus-image">
+            </div>
+            <h3 class="card-title">Multi Hip Machine</h3>
+            <p class="card-brand">Technogym</p>
+            <p class="card-desc">Multi Hip Machine adalah salah satu alat fitness berdiri (standing) paling serbaguna di gym karena dirancang sebagai alat 4-in-1 untuk melatih seluruh kelompok otot di sekeliling pinggul dan paha.</p>
+            <label for="modal-latpulldown" class="btn-detail">Lihat Detail <svg aria-hidden="true"><use href="#ic-arrow"></use></svg></label>
+          </div>
+          <div class="modal">
+            <label for="modal-latpulldown" class="modal-backdrop" aria-hidden="true"></label>
+            <div class="modal-box" role="dialog" aria-label="Detail Lat Pulldown Machine">
+              <label for="modal-latpulldown" class="modal-close" aria-label="Tutup detail"><svg aria-hidden="true"><use href="#ic-close"></use></svg></label>
+              <div class="modal-top-row"><span class="tag-hole"></span><span class="modal-unit">UNIT NO. 05</span></div>
+              <div class="modal-top">
+                <div class="gambar.alat">
+            <img src="multi hip.jpeg" alt="Universitas" class="campus-image">
+            </div>
+                <div><div class="modal-kicker">Lower Body</div><h3>Lat Pulldown Machine</h3><p class="modal-brand">Technogym</p></div>
+              </div>
+              <p class="modal-desc">1.	Melatih 4 Kelompok Otot Sekaligus (All-in-One Lower Body).</p>
+              <p class="modal-desc">2.	Mengatasi Ketidakseimbangan Otot (Fixing Muscle Imbalances).</p>
+              <p class="modal-desc">3.	Mengurangi Risiko Nyeri Punggung Bawah & Lutut.</p>
+              <p class="modal-desc">4.	Meningkatkan Mobilitas Pinggul & Performa Atletik.</p>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-info"></use></svg>Informasi Alat</h4>
+                <ul class="info-list">
+                  <li><span>Target Latihan</span><strong>Punggung, bisep &amp; bahu</strong></li>
+                  <li><span>Kapasitas Beban</span><strong>120 kg (beban tumpuk)</strong></li>
+                  <li><span>Level</span><strong>Pemula–Menengah</strong></li>
+                </ul>
+              </div>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-steps"></use></svg>Cara Pemakaian</h4>
+                <ol class="steps-list">
+                  <a href="https://www.youtube.com/watch?v=PvwI8tPBVX4&pp=ygUaY2FyYSBtZW5nZ3VuYWthbiBNdWx0aSBIaXA%3D" class="btn" target="_blank">Lihat Cara Memakai Alat</a>
+                  <li>Duduk di kursi mesin, pastikan punggung menempel pada sandaran dan kaki menapak di lantai.</li>
+                  <li>Genggam pegangan mesin dengan kedua tangan, pastikan posisi tubuh stabil.</li>
+                  <li>Tarik pegangan ke arah bawah dengan menggunakan otot punggung dan bisep, fokus pada kontraksi otot dan hindari menarik leher atau menggunakan momentum.</li>
+                  <li>Kembali ke posisi awal dengan kontrol, lalu ulangi sesuai jumlah repetisi yang diinginkan.</li>
+                </ol>
+              </div>
+              <div class="modal-status status-go"><i class="dot"></i>Tersedia 1 Unit</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 06 CABLE CROSSOVER -->
+        <article class="equipment-item cat-lower">
+          <input type="checkbox" id="modal-cable" class="modal-toggle">
+          <div class="card">
+            <div class="card-top-row">
+              <span class="tag-hole"></span><span class="card-unit">UNIT NO. 06</span>
+            </div>
+            <div class="card-kicker">Lower Body</div>
+            <div class="gambar.alat">
+            <img src="leg curl.jpeg" alt="Universitas" class="campus-image">
+            </div>
+            <h3 class="card-title">Leg Curl</h3>
+            <p class="card-brand">Technogym</p>
+            <p class="card-desc">Leg Curl Machine (baik tipe duduk/seated, tengkurap/prone, maupun berdiri/standing) adalah alat fitness utama yang dirancang khusus untuk mengisolasi dan melatih otot paha belakang (hamstrings). .</p>
+            <label for="modal-cable" class="btn-detail">Lihat Detail <svg aria-hidden="true"><use href="#ic-arrow"></use></svg></label>
+          </div>
+          <div class="modal">
+            <label for="modal-cable" class="modal-backdrop" aria-hidden="true"></label>
+            <div class="modal-box" role="dialog" aria-label="Detail Cable Crossover Machine">
+              <label for="modal-cable" class="modal-close" aria-label="Tutup detail"><svg aria-hidden="true"><use href="#ic-close"></use></svg></label>
+              <div class="modal-top-row"><span class="tag-hole"></span><span class="modal-unit">UNIT NO. 06</span></div>
+              <div class="modal-top">
+                <div class="gambar.alat">
+            <img src="leg curl.jpeg" alt="Universitas" class="campus-image">
+            </div>
+                <div><div class="modal-kicker">Lower Body</div><h3>Leg Curl</h3><p class="modal-brand">Technogym</p></div>
+              </div>
+              <p class="modal-desc">1. Membentuk dan Mengencangkan Paha Belakang.</p>
+              <p class="modal-desc">2. Meningkatkan Kekuatan Otot Paha Belakang.</p>
+              <p class="modal-desc">3. Membantu Mengangkat Bentuk Bokong.</p>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-info"></use></svg>Informasi Alat</h4>
+                <ul class="info-list">
+                  <li><span>Target Latihan</span><strong>Dada, bahu, punggung &amp; lengan</strong></li>
+                  <li><span>Kapasitas Beban</span><strong>100 kg per sisi</strong></li>
+                  <li><span>Level</span><strong>Menengah–Lanjutan</strong></li>
+                </ul>
+              </div>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-steps"></use></svg>Cara Pemakaian</h4>
+                <ol class="steps-list">
+                  <a href="https://www.youtube.com/watch?v=mMvQmjN-EBs&pp=ygUZY2FyYSBtZW5nZ3VuYWthbiBMZWcgQ3VybA%3D%3D" class="btn" target="_blank">Lihat Cara Memakai Alat</a>
+                  <li>Memakai Leg Curl Machine, pertama-tama pastikan Anda memilih beban yang sesuai dengan kemampuan Anda. Mulailah dengan beban yang lebih ringan jika Anda pemula.</li>
+                  <li>Duduk di kursi mesin, pastikan punggung menempel pada sandaran dan kaki menapak di lantai. Sesuaikan bantalan mesin agar berada di belakang pergelangan kaki Anda.</li>
+                  <li>Genggam pegangan mesin dengan kedua tangan, pastikan posisi tubuh stabil.</li>
+                  <li>Tekan bantalan ke arah bawah dengan menggunakan otot paha belakang, fokus pada kontraksi otot dan hindari menggunakan momentum. Kembali ke posisi awal dengan kontrol, lalu ulangi sesuai jumlah repetisi yang diinginkan.</li>
+                </ol>
+              </div>
+              <div class="modal-status status-go"><i class="dot"></i>Tersedia 1 Unit</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 07 DUMBBELL SET -->
+        <article class="equipment-item cat-upper">
+          <input type="checkbox" id="modal-dumbbell" class="modal-toggle">
+          <div class="card">
+            <div class="card-top-row">
+              <span class="tag-hole"></span><span class="card-unit">UNIT NO. 07</span>
+            </div>
+            <div class="card-kicker">Upper Body</div>
+            <div class="gambar.alat">
+            <img src="chestt pres.jpeg" alt="Universitas" class="campus-image">
+            </div>
+            <h3 class="card-title">Chest Press</h3>
+            <p class="card-brand">Technogym</p>
+            <p class="card-desc">Chest Press Machine (baik tipe duduk/seated maupun berbaring/lying) adalah alat fitness komersial yang dirancang untuk meniru gerakan bench press menggunakan barbel.</p>
+            <label for="modal-dumbbell" class="btn-detail">Lihat Detail <svg aria-hidden="true"><use href="#ic-arrow"></use></svg></label>
+          </div>
+          <div class="modal">
+            <label for="modal-dumbbell" class="modal-backdrop" aria-hidden="true"></label>
+            <div class="modal-box" role="dialog" aria-label="Detail Dumbbell Set">
+              <label for="modal-dumbbell" class="modal-close" aria-label="Tutup detail"><svg aria-hidden="true"><use href="#ic-close"></use></svg></label>
+              <div class="modal-top-row"><span class="tag-hole"></span><span class="modal-unit">UNIT NO. 07</span></div>
+              <div class="modal-top">
+                <div class="gambar.alat">
+            <img src="chestt pres.jpeg" alt="Universitas" class="campus-image">
+            </div>
+                <div><div class="modal-kicker">Upper Body</div><h3>Chest Press</h3><p class="modal-brand">Technogym</p></div>
+              </div>
+              <p class="modal-desc">Alat ini berfungsi utama untuk mengisolasi dan membangun otot dada (pectoralis) dengan lintasan gerakan yang terkontrol dan aman, manfaat:</p>
+              <p class="modal-desc">1. Membangun Otot Dada yang Padat.</p>
+              <p class="modal-desc">2. Melatih Otot Sinergis (Triceps & Bahu).</p>
+              <p class="modal-desc">3. Mengencangkan Area Dada Atas.</p>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-info"></use></svg>Informasi Alat</h4>
+                <ul class="info-list">
+                  <li><span>Target Latihan</span><strong>Hampir seluruh otot tubuh</strong></li>
+                  <li><span>Kapasitas Beban</span><strong>5–50 kg per unit</strong></li>
+                  <li><span>Level</span><strong>Semua level</strong></li>
+                </ul>
+              </div>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-steps"></use></svg>Cara Pemakaian</h4>
+                <ol class="steps-list">
+                  <a href="https://www.youtube.com/watch?v=sqNwDkUU_Ps&pp=ugMICgJpZBABGAHKBR1jYXJhIG1lbmdndW5ha2FuIENoZXN0IFByZXNzIA%3D%3D" class="btn" target="_blank">Lihat Cara Memakai Alat</a>
+                  <li>Memakai Chest Press Machine, pertama-tama pastikan Anda memilih beban yang sesuai dengan kemampuan Anda. Mulailah dengan beban yang lebih ringan jika Anda pemula.</li>
+                  <li>Duduk di kursi mesin, pastikan punggung menempel pada sandaran dan kaki menapak di lantai. Sesuaikan posisi pegangan agar sejajar dengan dada Anda.</li>
+                  <li>Genggam pegangan mesin dengan kedua tangan, pastikan posisi tubuh stabil.</li>
+                  <li>Tekan pegangan ke depan dengan menggunakan otot dada, fokus pada kontraksi otot dan hindari menggunakan momentum. Kembali ke posisi awal dengan kontrol, lalu ulangi sesuai jumlah repetisi yang diinginkan.</li>
+                </ol>
+              </div>
+              <div class="modal-status status-go"><i class="dot"></i>Tersedia 1 Unit</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 08 BARBELL OLYMPIC -->
+        <article class="equipment-item cat-upper">
+          <input type="checkbox" id="modal-barbell" class="modal-toggle">
+          <div class="card">
+            <div class="card-top-row">
+              <span class="tag-hole"></span><span class="card-unit">UNIT NO. 08</span>
+            </div>
+            <div class="card-kicker">Upper Body</div>
+            <div class="gambar.alat">
+            <img src="shoulder press.jpeg" alt="Universitas" class="campus-image">
+            </div>
+            <h3 class="card-title">Shoulder Press</h3>
+            <p class="card-brand">Technogym</p>
+            <p class="card-desc">Shoulder Press Machine adalah alat fitness yang dirancang khusus untuk melatih otot-otot tubuh bagian atas dengan gerakan mendorong beban lurus ke atas kepala (overhead press).</p>
+            <label for="modal-barbell" class="btn-detail">Lihat Detail <svg aria-hidden="true"><use href="#ic-arrow"></use></svg></label>
+          </div>
+          <div class="modal">
+            <label for="modal-barbell" class="modal-backdrop" aria-hidden="true"></label>
+            <div class="modal-box" role="dialog" aria-label="Detail Barbell Olympic">
+              <label for="modal-barbell" class="modal-close" aria-label="Tutup detail"><svg aria-hidden="true"><use href="#ic-close"></use></svg></label>
+              <div class="modal-top-row"><span class="tag-hole"></span><span class="modal-unit">UNIT NO. 08</span></div>
+              <div class="modal-top">
+                <div class="gambar.alat">
+            <img src="shoulder press  .jpeg" alt="Universitas" class="campus-image">
+            </div>
+                <div><div class="modal-kicker">Upper Body</div><h3>Shoulder Press</h3><p class="modal-brand">Technogym</p></div>
+              </div>
+              <p class="modal-desc">1. Membangun Bahu yang Lebar dan Bulat.</p>
+              <p class="modal-desc">2. Menciptakan Ilusi Pinggang Ramping (V-Taper).</p>
+              <p class="modal-desc">3. Melatih Otot Lengan dan Punggung Atas.</p>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-info"></use></svg>Informasi Alat</h4>
+                <ul class="info-list">
+                  <a href="https://www.youtube.com/watch?v=3R14MnZbcpw&pp=ygUfY2FyYSBtZW5nZ3VuYWthbiBTaG91bGRlciBQcmVzcw%3D%3D" class="btn" target="_blank">Lihat Cara Memakai Alat</a>
+                  <li><span>Target Latihan</span><strong>Otot besar: kaki, punggung, dada</strong></li>
+                  <li><span>Kapasitas Beban</span><strong>±300 kg dengan plat</strong></li>
+                  <li><span>Level</span><strong>Menengah–Lanjutan</strong></li>
+                </ul>
+              </div>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-steps"></use></svg>Cara Pemakaian</h4>
+                <ol class="steps-list">
+                  <li>Memakai Shoulder Press Machine, pertama-tama pastikan Anda memilih beban yang sesuai dengan kemampuan Anda. Mulailah dengan beban yang lebih ringan jika Anda pemula.</li>
+                  <li>Duduk di kursi mesin, pastikan punggung menempel pada sandaran dan kaki menapak di lantai. Sesuaikan posisi pegangan agar sejajar dengan bahu Anda.</li>
+                  <li>Genggam pegangan mesin dengan kedua tangan, pastikan posisi tubuh stabil.</li>
+                  <li>Tekan pegangan ke atas dengan menggunakan otot bahu, fokus pada kontraksi otot dan hindari menggunakan momentum. Kembali ke posisi awal dengan kontrol, lalu ulangi sesuai jumlah repetisi yang diinginkan.</li>
+                </ol>
+              </div>
+              <div class="modal-status status-go"><i class="dot"></i>Tersedia 3 Batang</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 09 KETTLEBELL SET -->
+        <article class="equipment-item cat-upper">
+          <input type="checkbox" id="modal-kettlebell" class="modal-toggle">
+          <div class="card">
+            <div class="card-top-row">
+              <span class="tag-hole"></span><span class="card-unit">UNIT NO. 09</span>
+            </div>
+            <div class="card-kicker">Upper Body</div>
+            <div class="gambar.alat">
+            <img src="upper back.jpeg" alt="Universitas" class="campus-image">
+            </div>
+            <h3 class="card-title">Upper Back Machine</h3>
+            <p class="card-brand">Technogym</p>
+            <p class="card-desc">Upper Back Machine (sering disebut mesin Seated Row dengan pegangan tinggi atau Rear Delt/Row Machine) adalah alat gym yang dirancang khusus untuk melatih otot punggung bagian atas. Gerakan utamanya adalah menarik tuas atau pegangan ke arah dada dengan posisi siku terbuka lebar ke samping.</p>
+            <label for="modal-kettlebell" class="btn-detail">Lihat Detail <svg aria-hidden="true"><use href="#ic-arrow"></use></svg></label>
+          </div>
+          <div class="modal">
+            <label for="modal-kettlebell" class="modal-backdrop" aria-hidden="true"></label>
+            <div class="modal-box" role="dialog" aria-label="Detail Kettlebell Set">
+              <label for="modal-kettlebell" class="modal-close" aria-label="Tutup detail"><svg aria-hidden="true"><use href="#ic-close"></use></svg></label>
+              <div class="modal-top-row"><span class="tag-hole"></span><span class="modal-unit">UNIT NO. 09</span></div>
+              <div class="modal-top">
+                <div class="gambar.alat">
+              <img src="upper back.jpeg" alt="Universitas" class="campus-image">
+              </div>
+                <div><div class="modal-kicker">Upper Body</div><h3>Upper Back Machine</h3><p class="modal-brand">Technogym</p></div>
+              </div>
+              <p class="modal-desc">Manfaat utama dari alat ini adalah memperbaiki postur tubuh bungkuk sekaligus membangun ketebalan dan definisi otot punggung bagian atas secara presisi dan aman.</p>
+              <p class="modal-desc">1.	Memperbaiki Postur Tubuh (Anti-Slouching).</p>
+              <p class="modal-desc">2.	Menebalkan dan Mendefinisikan Punggung Atas.</p>
+              <p class="modal-desc">3.	Keamanan Tinggi untuk Tulang Belakang.</p>
+              <p class="modal-desc">4.	Mengisolasi Otot Tanpa "Kecurangan".</p>              
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-info"></use></svg>Informasi Alat</h4>
+                <ul class="info-list">
+                  <li><span>Target Latihan</span><strong>Inti tubuh, bahu, kaki &amp; koordinasi</strong></li>
+                  <li><span>Kapasitas Beban</span><strong>4–40 kg per unit</strong></li>
+                  <li><span>Level</span><strong>Menengah–Lanjutan</strong></li>
+                </ul>
+              </div>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-steps"></use></svg>Cara Pemakaian</h4>
+                <ol class="steps-list">
+                  <a href="https://www.youtube.com/watch?v=TH8IA3k_2B0&pp=ygUiY2FyYSBtZW5nZ3VuYWthbiBVcHBlcmJhY2sgTWFjaGluZQ%3D%3D" class="btn" target="_blank">Lihat Cara Memakai Alat</a>
+                  <li>Mulai dengan berat ringan untuk mempelajari teknik dasar (swing, goblet squat).</li>
+                  <li>Genggam handle dengan kuat, jaga pergelangan tangan tetap netral.</li>
+                  <li>Gerakkan menggunakan tenaga dari pinggul, bukan hanya lengan.</li> 
+                  <li>Letakkan kembali ke rak dalam posisi berdiri setelah selesai digunakan.</li>
+                </ol>
+              </div>
+              <div class="modal-status status-amber"><i class="dot"></i>Tersedia 1 Unit</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 010 KETTLEBELL SET -->
+        <article class="equipment-item cat-upper">
+          <input type="checkbox" id="vertical" class="modal-toggle">
+          <div class="card">
+            <div class="card-top-row">
+              <span class="tag-hole"></span><span class="card-unit">UNIT NO. 10</span>
+            </div>
+            <div class="card-kicker">Upper Body</div>
+            <div class="gambar.alat">
+            <img src="justable.jpeg" alt="Universitas" class="campus-image">
+            </div>
+            <h3 class="card-title">Adjustable Weight Bench</h3>
+            <p class="card-brand">Technogym</p>
+            <p class="card-desc">Adjustable Weight Bench (bangku beban yang posisinya bisa diatur) adalah salah satu alat paling mendasar dan wajib ada di setiap gym.</p>
+            <label for="vertical" class="btn-detail">Lihat Detail <svg aria-hidden="truei"><use href="#ic-arrow"></use></svg></label>
+          </div>
+          <div class="modal">
+            <label for="vertical" class="modal-backdrop" aria-hidden="truei"></label>
+            <div class="modal-box" role="dialog" aria-label="Detail vertical">
+              <label for="vertical" class="modal-close" aria-label="Tutup detail"><svg aria-hidden="true"><use href="#ic-close"></use></svg></label>
+              <div class="modal-top-row"><span class="tag-hole"></span><span class="modal-unit">UNIT NO. 010</span></div>
+              <div class="modal-top">
+                <div class="gambar.alat">
+            <img src="justable.jpeg" alt="Universitas" class="campus-image">
+            </div>
+                <div><div class="modal-kicker">Upper Body</div><h3>Adjustable Weight Bench</h3><p class="modal-brand">Technogym</p></div>
+              </div>
+              <p class="modal-desc">Manfaat utama dari alat ini adalah memberikan fleksibilitas tanpa batas untuk melatih seluruh kelompok otot tubuh dari berbagai sudut kemiringan secara stabil dan aman. Dengan mengubah posisi sandaran, 
+                Anda bisa mengubah satu jenis latihan menjadi beberapa variasi gerakan yang berbeda untuk menyasar serat otot yang spesifik.</p>
+              <p class="modal-desc">1.	Meningkatkan Fleksibilitas Latihan (Multiple Angles).</p>
+              <p class="modal-desc">2.	Meningkatkan Kekuatan dan Massa Otot (Strength & Hypertrophy).</p>
+              <p class="modal-desc">3.	Meningkatkan Stabilitas dan Keseimbangan Tubuh (Core Stability & Balance).</p>
+                <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-info"></use></svg>Informasi Alat</h4>
+                <ul class="info-list">
+                  <li><span>Target Latihan</span><strong>Inti tubuh, bahu, kaki &amp; koordinasi</strong></li>
+                  <li><span>Kapasitas Beban</span><strong>4–40 kg per unit</strong></li>
+                  <li><span>Level</span><strong>Menengah–Lanjutan</strong></li>
+                </ul>
+              </div>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-steps"></use></svg>Cara Pemakaian</h4>
+                <ol class="steps-list">
+                  <a href="https://www.youtube.com/shorts/_sgEFmQ_-Y0" class="btn" target="_blank">Lihat Cara Memakai Alat</a>
+                  <li>Memakai Adjustable Weight Bench, pertama-tama pastikan Anda memilih posisi sandaran yang sesuai dengan latihan yang akan dilakukan. Mulailah dengan posisi datar (flat) untuk latihan dasar.</li>   
+                  <li>Sesuaikan posisi sandaran ke posisi incline atau decline sesuai kebutuhan latihan. Pastikan sandaran terkunci dengan aman sebelum digunakan.</li>
+                  <li>Gunakan bench untuk berbagai latihan seperti bench press, dumbbell flyes, atau seated shoulder press. Pastikan posisi tubuh stabil dan kaki menapak di lantai.</li>
+                  <li>Setelah selesai, kembalikan sandaran ke posisi datar dan pastikan bench dalam kondisi aman sebelum meninggalkannya.</li>
+                </ol>
+              </div>
+              <div class="modal-status status-go"><i class="dot"></i>Tersedia 1 Unit</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 011 KETTLEBELL SET -->
+        <article class="equipment-item cat-upper">
+          <input type="checkbox" id="aud" class="modal-toggle">
+          <div class="card">
+            <div class="card-top-row">
+              <span class="tag-hole"></span><span class="card-unit">UNIT NO. 11</span>
+            </div>
+            <div class="card-kicker">Upper Body</div>
+            <div class="gambar.alat">
+            <img src="lat-m.jpeg" alt="Universitas" class="campus-image">
+            </div>
+            <h3 class="card-title">Lat Machine</h3>
+            <p class="card-brand">Technogym</p>
+            <p class="card-desc">Lat Machine (atau sering disebut secara spesifik sebagai Lat Pulldown Machine) adalah alat fitness ikonik yang dirancang khusus untuk melatih otot-otot besar di punggung bagian atas melalui gerakan tarikan vertikal dari atas ke bawah.</p>
+            <label for="aud" class="btn-detail">Lihat Detail <svg aria-hidden="true"><use href="#ic-arrow"></use></svg></label>
+          </div>
+          <div class="modal">
+            <label for="aud" class="modal-backdrop" aria-hidden="true"></label>
+            <div class="modal-box" role="dialog" aria-label="Detail aud">
+              <label for="aud" class="modal-close" aria-label="Tutup detail"><svg aria-hidden="true"><use href="#ic-close"></use></svg></label>
+              <div class="modal-top-row"><span class="tag-hole"></span><span class="modal-unit">UNIT NO. 09</span></div>
+              <div class="modal-top">
+                <div class="gambar.alat">
+            <img src="lat-m.jpeg" alt="Universitas" class="campus-image">
+            </div>
+                <div><div class="modal-kicker">Upper Body</div><h3>Lat Machine</h3><p class="modal-brand">Technogym</p></div>
+              </div>
+              <p class="modal-desc">1.	Membentuk Punggung Lebar dan Proporsional (Efek V-Taper).</p>
+              <p class="modal-desc">2.	Jembatan Terbaik Menuju Latihan Pull-Up.</p>
+              <p class="modal-desc">3.	Memperbaiki Postur Tubuh (Anti-Bungkuk).</p>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-info"></use></svg>Informasi Alat</h4>
+                <ul class="info-list">
+                  <li><span>Target Latihan</span><strong>Inti tubuh, bahu, kaki &amp; koordinasi</strong></li>
+                  <li><span>Kapasitas Beban</span><strong>4–40 kg per unit</strong></li>
+                  <li><span>Level</span><strong>Menengah–Lanjutan</strong></li>
+                </ul>
+              </div>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-steps"></use></svg>Cara Pemakaian</h4>
+                <ol class="steps-list">
+                  <a href="https://www.youtube.com/watch?v=AOpi-p0cJkc&pp=ygULTGF0IE1hY2hpbmU%3D" class="btn" target="_blank">Lihat Cara Memakai Alat</a>
+                  <li>Menggunakan Lat Machine, pertama-tama pastikan Anda memilih beban yang sesuai dengan kemampuan Anda. Mulailah dengan beban yang lebih ringan jika Anda pemula.</li>
+                  <li>Duduk di kursi mesin, pastikan punggung menempel pada sandaran dan kaki menapak di lantai. Sesuaikan posisi bantalan agar berada di atas paha Anda.</li>
+                  <li>Genggam pegangan mesin dengan kedua tangan, pastikan posisi tubuh stabil.</li>
+                  <li>Tarik pegangan ke arah dada dengan menggunakan otot punggung, fokus pada kontraksi otot dan hindari menarik leher atau menggunakan momentum. Kembali ke posisi awal dengan kontrol, lalu ulangi sesuai jumlah repetisi yang diinginkan.</li>
+                </ol>
+              </div>
+              <div class="modal-status status-go"><i class="dot"></i>Tersedia 1 Unit</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 012 KETTLEBELL SET -->
+        <article class="equipment-item cat-upper">
+          <input type="checkbox" id="arm-curl" class="modal-toggle">
+          <div class="card">
+            <div class="card-top-row">
+              <span class="tag-hole"></span><span class="card-unit">UNIT NO. 12</span>
+            </div>
+            <div class="card-kicker">Upper Body</div>
+            <div class="gambar.alat">
+            <img src="armm curl.jpeg" alt="Universitas" class="campus-image">
+            </div>
+            <h3 class="card-title">Arm Curl</h3>
+            <p class="card-brand">Technogym</p>
+            <p class="card-desc">Arm Curl Machine (atau sering disebut sebagai Bicep Curl / Preacher Curl Machine) adalah alat fitness yang dirancang khusus dengan bantalan lengan untuk mengisolasi dan melatih otot lengan bagian depan (biceps).</p>
+            <label for="arm-curl" class="btn-detail">Lihat Detail <svg aria-hidden="true"><use href="#ic-arrow"></use></svg></label>
+          </div>
+          <div class="modal">
+            <label for="arm-curl" class="modal-backdrop" aria-hidden="true"></label>
+            <div class="modal-box" role="dialog" aria-label="Detail Kettlebell Set">
+              <label for="arm-curl" class="modal-close" aria-label="Tutup detail"><svg aria-hidden="true"><use href="#ic-close"></use></svg></label>
+              <div class="modal-top-row"><span class="tag-hole"></span><span class="modal-unit">UNIT NO. 12</span></div>
+              <div class="modal-top">
+                <div class="gambar.alat">
+            <img src="armm curl.jpeg" alt="Universitas" class="campus-image">
+            </div>
+                <div><div class="modal-kicker">Upper Body</div><h3>Arm Curl</h3><p class="modal-brand">Technogym</p></div>
+              </div>
+              <p class="modal-desc">1. Membangun Otot Biceps yang Padat.</p>
+              <p class="modal-desc">2. Membentuk "Puncak" Biceps (Bicep Peak).</p>
+              <p class="modal-desc">3. Mengencangkan Lengan Bergelambir.</p>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-info"></use></svg>Informasi Alat</h4>
+                <ul class="info-list">
+                  <li><span>Target Latihan</span><strong>Inti tubuh, bahu, kaki &amp; koordinasi</strong></li>
+                  <li><span>Kapasitas Beban</span><strong>4–40 kg per unit</strong></li>
+                  <li><span>Level</span><strong>Menengah–Lanjutan</strong></li>
+                </ul>
+              </div>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-steps"></use></svg>Cara Pemakaian</h4>
+                <ol class="steps-list">
+                  <a href="https://www.youtube.com/watch?v=KabNT3qAh3E&pp=ygUIQXJtIEN1cmw%3D" class="btn" target="_blank">Lihat Cara Memakai Alat</a>
+                  <li>Menggunakan Arm Curl Machine, pertama-tama pastikan Anda memilih beban yang sesuai dengan kemampuan Anda. Mulailah dengan beban yang lebih ringan jika Anda pemula.</li>
+                  <li>Duduk di kursi mesin, pastikan punggung menempel pada sandaran dan kaki menapak di lantai. Sesuaikan posisi bantalan agar berada di bawah lengan Anda.</li>
+                  <li>Genggam pegangan mesin dengan kedua tangan, pastikan posisi tubuh stabil.</li>
+                  <li>Tekan pegangan ke arah atas dengan menggunakan otot biceps, fokus pada kontraksi otot dan hindari menggunakan momentum. Kembali ke posisi awal dengan kontrol, lalu ulangi sesuai jumlah repetisi yang diinginkan.</li>
+                </ol>
+              </div>
+              <div class="modal-status status-go"><i class="dot"></i>Tersedia 1 Unit</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 013 KETTLEBELL SET -->
+        <article class="equipment-item cat-upper">
+          <input type="checkbox" id="chest-machine" class="modal-toggle">
+          <div class="card">
+            <div class="card-top-row">
+              <span class="tag-hole"></span><span class="card-unit">UNIT NO. 13</span>
+            </div>
+            <div class="card-kicker">Upper Body</div>
+            <div class="gambar.alat">
+            <img src="chest-press.jpeg" alt="Universitas" class="campus-image">
+            </div>
+            <h3 class="card-title">Chest Press</h3>
+            <p class="card-brand">Technogym</p>
+            <p class="card-desc">Chest Press adalah kategori alat fitness yang dirancang khusus untuk mengisolasi, mengencangkan, dan membangun otot-otot di area dada. Alat ini menjadi pilihan utama di gym karena menawarkan alternatif yang jauh lebih aman daripada menggunakan beban bebas (free weights) seperti barbel atau dumbbell..</p>
+            <label for="chest-machine" class="btn-detail">Lihat Detail <svg aria-hidden="true"><use href="#ic-arrow"></use></svg></label>
+          </div>
+          <div class="modal">
+            <label for="chest-machine" class="modal-backdrop" aria-hidden="true"></label>
+            <div class="modal-box" role="dialog" aria-label="Detail Kettlebell Set">
+              <label for="cheat-machine" class="modal-close" aria-label="Tutup detail"><svg aria-hidden="true"><use href="#ic-close"></use></svg></label>
+              <div class="modal-top-row"><span class="tag-hole"></span><span class="modal-unit">UNIT NO. 13</span></div>
+              <div class="modal-top">
+                <div class="gambar.alat">
+            <img src="chest-machine.jpeg" alt="Universitas" class="campus-image">
+            </div>
+                <div><div class="modal-kicker">Upper Body</div><h3>Chest Press</h3><p class="modal-brand">Technogym</p></div>
+              </div>
+              <p class="modal-desc">1. Membangun Dada yang Bidang dan Tebal</p>
+              <p class="modal-desc">2. Melatih Otot Pendukung secara Simultan</p>
+              <p class="modal-desc">3. Membentuk Belahan Dada (Chest Cleavage)</p>
+              <p class="modal-desc">4. Efek Pengencangan Alami</p>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-info"></use></svg>Informasi Alat</h4>
+                <ul class="info-list">
+                  <li><span>Target Latihan</span><strong>Inti tubuh, bahu, kaki &amp; koordinasi</strong></li>
+                  <li><span>Kapasitas Beban</span><strong>4–40 kg per unit</strong></li>
+                  <li><span>Level</span><strong>Menengah–Lanjutan</strong></li>
+                </ul>
+              </div>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-steps"></use></svg>Cara Pemakaian</h4>
+                <ol class="steps-list">
+                  <a href="https://www.youtube.com/shorts/UH6y0fhbw8w" class="btn" target="_blank">Lihat Cara Memakai Alat</a>
+                  <li>Menggunakan Chest Press Machine, pertama-tama pastikan Anda memilih beban yang sesuai dengan kemampuan Anda. Mulailah dengan beban yang lebih ringan jika Anda pemula.</li>
+                  <li>Duduk di kursi mesin, pastikan punggung menempel pada sandaran dan kaki menapak di lantai. Sesuaikan posisi pegangan agar sejajar dengan dada Anda.</li>
+                  <li>Genggam pegangan mesin dengan kedua tangan, pastikan posisi tubuh stabil.</li>
+                  <li>Tekan pegangan ke depan dengan menggunakan otot dada, fokus pada kontraksi otot dan hindari menggunakan momentum. Kembali ke posisi awal dengan kontrol, lalu ulangi sesuai jumlah repetisi yang diinginkan.</li>
+                </ol>
+              </div>
+              <div class="modal-status status-go"><i class="dot"></i>Tersedia 1 Unit</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 014 KETTLEBELL SET -->
+        <article class="equipment-item cat-fullbody">
+          <input type="checkbox" id="multi-gym" class="modal-toggle">
+          <div class="card">
+            <div class="card-top-row">
+              <span class="tag-hole"></span><span class="card-unit">UNIT NO. 14</span>
+            </div>
+            <div class="card-kicker">Full Body</div>
+            <div class="gambar.alat">
+            <img src="multi-gym.jpeg" alt="Universitas" class="campus-image">
+            </div>
+            <h3 class="card-title">Body Craft / Multi Gym</h3>
+            <p class="card-brand">Technogym</p>
+            <p class="card-desc">Multi Gym Machine atau Body craft adalah alat fitness stasioner yang menggabungkan berbagai macam stasiun latihan otot ke dalam satu rangka alat tunggal. Alat ini dirancang agar pengguna bisa melatih seluruh kelompok otot tubuh (full body workout) tanpa perlu membeli banyak alat terpisah.</p>
+            <label for="multi-gym" class="btn-detail">Lihat Detail <svg aria-hidden="true"><use href="#ic-arrow"></use></svg></label>
+          </div>
+          <div class="modal">
+            <label for="modal-kettlebell" class="modal-backdrop" aria-hidden="true"></label>
+            <div class="modal-box" role="dialog" aria-label="Detail Kettlebell Set">
+              <label for="multi-gym" class="modal-close" aria-label="Tutup detail"><svg aria-hidden="true"><use href="#ic-close"></use></svg></label>
+              <div class="modal-top-row"><span class="tag-hole"></span><span class="modal-unit">UNIT NO. 14</span></div>
+              <div class="modal-top">
+                <div class="gambar.alat">
+            <img src="multi-gym.jpeg" alt="Universitas" class="campus-image">
+            </div>
+                <div><div class="modal-kicker">Full Body</div><h3>Bodi Craft / Multi Gym</h3><p class="modal-brand">Technogym</p></div>
+              </div>
+              <p class="modal-desc">Beban berbentuk bola dengan pegangan untuk latihan fungsional yang dinamis.</p>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-info"></use></svg>Informasi Alat</h4>
+                <ul class="info-list">
+                  <li><span>Target Latihan</span><strong>Inti tubuh, bahu, kaki &amp; koordinasi</strong></li>
+                  <li><span>Kapasitas Beban</span><strong>4–40 kg per unit</strong></li>
+                  <li><span>Level</span><strong>Menengah–Lanjutan</strong></li>
+                </ul>
+              </div>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-steps"></use></svg>Cara Pemakaian</h4>
+                <ol class="steps-list">
+                  <a href="https://www.youtube.com/watch?v=gnElpp3Fm50&pp=ygUhQ2FyYSBNZW5nZ3VuYWthbiBBc3Npc3RlZCBQdWxsLVVw" class="btn" target="_blank">Lihat Cara Memakai Alat</a>
+                  <li>Memakai Multi Gym Machine, pertama-tama pastikan Anda memilih stasiun latihan yang sesuai dengan kelompok otot yang ingin dilatih. Mulailah dengan beban yang lebih ringan jika Anda pemula.</li>
+                  <li>Ikuti petunjuk penggunaan pada setiap stasiun latihan, pastikan posisi tubuh stabil dan aman sebelum memulai gerakan.</li>  
+                  <li>Gunakan mesin untuk berbagai latihan seperti chest press, lat pulldown, leg extension, dan lainnya. Pastikan gerakan dilakukan dengan kontrol dan fokus pada kontraksi otot.</li>
+                  <li>Setelah selesai, kembalikan semua pegangan dan beban ke posisi awal dan pastikan mesin dalam kondisi aman sebelum meninggalkannya.</li>
+                </ol>
+              </div>
+              <div class="modal-status status-go"><i class="dot"></i>Tersedia 1 Unit</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 015 KETTLEBELL SET -->
+        <article class="equipment-item cat-lower">
+          <input type="checkbox" id="abductor-selection" class="modal-toggle">
+          <div class="card">
+            <div class="card-top-row">
+              <span class="tag-hole"></span><span class="card-unit">UNIT NO. 15</span>
+            </div>
+            <div class="card-kicker">Lower Body</div>
+            <div class="gambar.alat">
+            <img src="abduc.jpeg" alt="Universitas" class="campus-image">
+            </div>
+            <h3 class="card-title">Abductor Selection</h3>
+            <p class="card-brand">Technogym</p>
+            <p class="card-desc">Mesin Abductor Selection (atau sering disebut Hip Abduction Machine) dirancang khusus untuk mengisolasi dan melatih kelompok otot paha luar dan bokong lateral. Gerakan utama alat ini adalah mendorong bantalan ke arah luar menggunakan paha, menjauhi garis tengah tubuh.</p>
+            <label for="abductor-selection" class="btn-detail">Lihat Detail <svg aria-hidden="true"><use href="#ic-arrow"></use></svg></label>
+          </div>
+          <div class="modal">
+            <label for="abductor-selection" class="modal-backdrop" aria-hidden="true"></label>
+            <div class="modal-box" role="dialog" aria-label="Detail Kettlebell Set">
+              <label for="abductor-selection" class="modal-close" aria-label="Tutup detail"><svg aria-hidden="true"><use href="#ic-close"></use></svg></label>
+              <div class="modal-top-row"><span class="tag-hole"></span><span class="modal-unit">UNIT NO. 15</span></div>
+              <div class="modal-top">
+                <div class="gambar.alat">
+            <img src="abduc.jpeg" alt="Universitas" class="campus-image">
+            </div>
+                <div><div class="modal-kicker">Lower Body</div><h3>Abductor Selection</h3><p class="modal-brand">Technogym</p></div>
+              </div>
+              <p class="modal-desc">1.	Membentuk Pinggul Lebih Bulat (Side Booty).</p>
+              <p class="modal-desc">2.	Mengencangkan Paha Luar.</p>
+              <p class="modal-desc">3.	Meningkatkan Keseimbangan Tubuh.</p>
+              <p class="modal-desc">4.	Transfer Kekuatan pada Gerakan Lain.</p>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-info"></use></svg>Informasi Alat</h4>
+                <ul class="info-list">
+                  <li><span>Target Latihan</span><strong>Inti tubuh, bahu, kaki &amp; koordinasi</strong></li>
+                  <li><span>Kapasitas Beban</span><strong>4–40 kg per unit</strong></li>
+                  <li><span>Level</span><strong>Menengah–Lanjutan</strong></li>
+                </ul>
+              </div>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-steps"></use></svg>Cara Pemakaian</h4>
+                <ol class="steps-list">
+                  <a href="https://www.youtube.com/watch?v=oLOkB5o4xr4&pp=ygUjY2FyYSBtZW5nZ3VuYWthbiBBYmR1Y3RvciBTZWxlY3Rpb24%3D" class="btn" target="_blank">Lihat Cara Memakai Alat</a>
+                  <li>Memakai Abductor Selection Machine, pertama-tama pastikan Anda memilih beban yang sesuai dengan kemampuan Anda. Mulailah dengan beban yang lebih ringan jika Anda pemula.</li>
+                  <li>Duduk di kursi mesin, pastikan punggung menempel pada sandaran dan kaki menapak di lantai. Sesuaikan posisi bantalan agar berada di luar paha Anda.</li>
+                  <li>Genggam pegangan mesin dengan kedua tangan, pastikan posisi tubuh stabil.</li>
+                  <li>Tekan bantalan ke arah luar dengan menggunakan otot paha, fokus pada kontraksi otot dan hindari menggunakan momentum. Kembali ke posisi awal dengan kontrol, lalu ulangi sesuai jumlah repetisi yang diinginkan.</li>
+                </ol>
+              </div>
+              <div class="modal-status status-go"><i class="dot"></i>Tersedia 1 Unit</div>
+            </div>
+          </div>
+        </article>
+
+         <!-- 016 KETTLEBELL SET -->
+        <article class="equipment-item cat-upper">
+          <input type="checkbox" id="olympic-machine" class="modal-toggle">
+          <div class="card">
+            <div class="card-top-row">
+              <span class="tag-hole"></span><span class="card-unit">UNIT NO. 16</span>
+            </div>
+            <div class="card-kicker">Upper Body</div>
+            <div class="gambar.alat">
+            <img src="oi.jpeg" alt="Universitas" class="campus-image">
+            </div>
+            <h3 class="card-title">Olympic Incline Bench Press</h3>
+            <p class="card-brand">Technogym</p>
+            <p class="card-desc">Olympic Incline Bench Press adalah bangku latihan beban dengan posisi sandaran yang miring ke atas (sekitar 30–45 derajat) dan dilengkapi dengan tiang penyangga barbell kokoh.</p>
+            <label for="olympic-machine" class="btn-detail">Lihat Detail <svg aria-hidden="true"><use href="#ic-arrow"></use></svg></label>
+          </div>
+          <div class="modal">
+            <label for="olympic-machine" class="modal-backdrop" aria-hidden="true"></label>
+            <div class="modal-box" role="dialog" aria-label="Detail Kettlebell Set">
+              <label for="olympic-machine" class="modal-close" aria-label="Tutup detail"><svg aria-hidden="true"><use href="#ic-close"></use></svg></label>
+              <div class="modal-top-row"><span class="tag-hole"></span><span class="modal-unit">UNIT NO. 16</span></div>
+              <div class="modal-top">
+                <div class="gambar.alat">
+            <img src="oi.jpeg" alt="Universitas" class="campus-image">
+            </div>
+                <div><div class="modal-kicker">Upper Body</div><h3>Olympic Incline Bench Press</h3><p class="modal-brand">Technogym</p></div>
+              </div>
+              <p class="modal-desc">1. Estetika dan Pembentukan Otot Dada Atas.</p>
+              <p class="modal-desc">2. Peningkatan Kekuatan Bahu dan Otot Pendukung.</p>
+              <p class="modal-desc">3. Melatih Otot Tricep.</p>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-info"></use></svg>Informasi Alat</h4>
+                <ul class="info-list">
+                  <li><span>Target Latihan</span><strong>Inti tubuh, bahu, kaki &amp; koordinasi</strong></li>
+                  <li><span>Kapasitas Beban</span><strong>4–40 kg per unit</strong></li>
+                  <li><span>Level</span><strong>Menengah–Lanjutan</strong></li>
+                </ul>
+              </div>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-steps"></use></svg>Cara Pemakaian</h4>
+                <ol class="steps-list">
+                  <a href="https://www.youtube.com/watch?v=VKNyZc2Ks1Q&pp=ygUVT2x5bXBpYyBJbmNsaW5lIEJlbmNo" class="btn" target="_blank">Lihat Cara Memakai Alat</a>
+                  <li>Memakai Multi Gym Machine, pertama-tama pastikan Anda memilih stasiun latihan yang sesuai dengan kelompok otot yang ingin dilatih. Mulailah dengan beban yang lebih ringan jika Anda pemula.</li>
+                  <li>Ikuti petunjuk penggunaan pada setiap stasiun latihan, pastikan posisi tubuh stabil dan aman sebelum memulai gerakan.</li>
+                  <li>Gunakan mesin untuk berbagai latihan seperti chest press, lat pulldown, leg extension, dan lainnya. Pastikan gerakan dilakukan dengan kontrol dan fokus pada kontraksi otot.</li>
+                  <li>Setelah selesai, kembalikan semua pegangan dan beban ke posisi awal dan pastikan mesin dalam kondisi aman sebelum meninggalkannya.</li>
+                </ol>
+              </div>
+              <div class="modal-status status-go"><i class="dot"></i>Tersedia 1 Unit</div>
+            </div>
+          </div>
+        </article>
+
+         <!-- 017 KETTLEBELL SET -->
+        <article class="equipment-item cat-fullbody">
+          <input type="checkbox" id="legpress" class="modal-toggle">
+          <div class="card">
+            <div class="card-top-row">
+              <span class="tag-hole"></span><span class="card-unit">UNIT NO. 17</span>
+            </div>
+            <div class="card-kicker">Full Body</div>
+            <div class="gambar.alat">
+            <img src="legpres2in1.jpeg" alt="Universitas" class="campus-image">
+            </div>
+            <h3 class="card-title">Leg Press 2in1</h3>
+            <p class="card-brand">Technogym</p>
+            <p class="card-desc">Mesin Leg Press 2-in-1 (umumnya merupakan kombinasi antara Leg Press dan Hack Squat) adalah alat kebugaran hibrida yang dirancang untuk melatih otot tubuh bagian bawah dari dua sudut gerakan yang berbeda..</p>
+            <label for="legpress" class="btn-detail">Lihat Detail <svg aria-hidden="true"><use href="#ic-arrow"></use></svg></label>
+          </div>
+          <div class="modal">
+            <label for="legpress" class="modal-backdrop" aria-hidden="true"></label>
+            <div class="modal-box" role="dialog" aria-label="Detail Leg Press 2in1">
+              <label for="legpress" class="modal-close" aria-label="Tutup detail"><svg aria-hidden="true"><use href="#ic-close"></use></svg></label>
+              <div class="modal-top-row"><span class="tag-hole"></span><span class="modal-unit">UNIT NO. 09</span></div>
+              <div class="modal-top">
+                <div class="gambar.alat">
+            <img src="legpre2in1.jpeg" alt="Universitas" class="campus-image">
+            </div>
+                <div><div class="modal-kicker">Full Body</div><h3>Leg Press 2in1</h3><p class="modal-brand">Technogym</p></div>
+              </div>
+              <p class="modal-desc">Manfaat utama dari alat ini adalah efisiensi ruang dan biaya serta kemampuan untuk mengisolasi otot paha depan (quadriceps), paha belakang (hamstrings), dan bokong (glutes) secara maksimal dalam satu mesin. Hanya dengan mengubah posisi sandaran dan bantalan kaki, Anda bisa langsung beralih fungsi alat.</p>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-info"></use></svg>Informasi Alat</h4>
+                <ul class="info-list">
+                  <li><span>Target Latihan</span><strong>Inti tubuh, bahu, kaki &amp; koordinasi</strong></li>
+                  <li><span>Kapasitas Beban</span><strong>4–40 kg per unit</strong></li>
+                  <li><span>Level</span><strong>Menengah–Lanjutan</strong></li>
+                </ul>
+              </div>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-steps"></use></svg>Cara Pemakaian</h4>
+                <ol class="steps-list">
+                  <a href="https://www.youtube.com/shorts/IBcm6r04IHo" class="btn" target="_blank">Lihat Cara Memakai Alat</a>
+                  <li>Memakai Leg Press 2-in-1, pertama-tama pastikan Anda memilih posisi sandaran dan bantalan kaki yang sesuai dengan latihan yang akan dilakukan. Mulailah dengan posisi datar (flat) untuk latihan dasar.</li>
+                  <li>Sesuaikan beban yang akan digunakan, mulai dari beban ringan jika Anda pemula. Duduk di kursi mesin, pastikan punggung menempel pada sandaran dan kaki menapak pada bantalan kaki.</li>
+                  <li>Tekan bantalan kaki ke depan dengan menggunakan otot kaki, fokus pada kontraksi otot dan hindari menggunakan momentum. Kembali ke posisi awal dengan kontrol, lalu ulangi sesuai jumlah repetisi yang diinginkan.</li>
+                  <li>Untuk beralih ke posisi hack squat, ubah posisi sandaran dan bantalan kaki sesuai petunjuk pada mesin. Lanjutkan latihan dengan teknik yang sama, fokus pada kontraksi otot dan kontrol gerakan.</li>
+                </ol>
+              </div>
+              <div class="modal-status status-go"><i class="dot"></i>Tersedia 1 Unit</div>
+            </div>
+          </div>
+        </article>
+
+         <!-- 018 KETTLEBELL SET -->
+        <article class="equipment-item cat-fullbody">
+          <input type="checkbox" id="UNICA" class="modal-toggle">
+          <div class="card">
+            <div class="card-top-row">
+              <span class="tag-hole"></span><span class="card-unit">UNIT NO. 18</span>
+            </div>
+            <div class="card-kicker">Full Body</div>
+            <div class="gambar.alat">
+            <img src="UNIC.jpeg" alt="Universitas" class="campus-image">
+            </div>
+            <h3 class="card-title">UNICA</h3>
+            <p class="card-brand">Technogym</p>
+            <p class="card-desc">Technogym Unica adalah alat fitness all-in-one premium (multi gym) legendaris yang dirancang khusus untuk memenuhi kebutuhan latihan kekuatan dan pengondisian fisik secara menyeluruh.</p>
+            <label for="UNICA" class="btn-detail">Lihat Detail <svg aria-hidden="true"><use href="#ic-arrow"></use></svg></label>
+          </div>
+          <div class="modal">
+            <label for="UNICA" class="modal-backdrop" aria-hidden="true"></label>
+            <div class="modal-box" role="dialog" aria-label="Detail UNICA">
+              <label for="UNICA" class="modal-close" aria-label="Tutup detail"><svg aria-hidden="true"><use href="#ic-close"></use></svg></label>
+              <div class="modal-top-row"><span class="tag-hole"></span><span class="modal-unit">UNIT NO. 18</span></div>
+              <div class="modal-top">
+                <div class="gambar.alat">
+            <img src="UNIC.jpeg" alt="Universitas" class="campus-image">
+            </div>
+                  <div><div class="modal-kicker">Full Body</div><h3>UNICA</h3><p class="modal-brand">Body-Solid (4–40 kg)</p></div>
+                </div>
+              <p class="modal-desc">Manfaat utama dari alat gym Unica adalah kemampuannya untuk memfasilitasi lebih dari 25 hingga 50 jenis variasi latihan otot seluruh tubuh hanya dalam satu perangkat ringkas yang sangat menghemat ruang. Mesin ini hanya memakan lahan sekitar 1,5 meter persegi, menjadikannya solusi home gym paling efisien dan mewah..</p>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-info"></use></svg>Informasi Alat</h4>
+                <ul class="info-list">
+                  <li><span>Target Latihan</span><strong>Inti tubuh, bahu, kaki &amp; koordinasi</strong></li>
+                  <li><span>Kapasitas Beban</span><strong>4–40 kg per unit</strong></li>
+                  <li><span>Level</span><strong>Menengah–Lanjutan</strong></li>
+                </ul>
+              </div>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-steps"></use></svg>Cara Pemakaian</h4>
+                <ol class="steps-list">
+                  <a href="https://www.youtube.com/watch?v=06aBAQRxBnA" class="btn" target="_blank">Lihat Cara Memakai Alat</a>
+                  <li>Memakai UNICA, pertama-tama pastikan Anda memilih stasiun latihan yang sesuai dengan kelompok otot yang ingin dilatih. Mulailah dengan beban yang lebih ringan jika Anda pemula.</li>
+                  <li>Ikuti petunjuk penggunaan pada setiap stasiun latihan, pastikan posisi tubuh stabil dan aman sebelum memulai gerakan.</li>
+                  <li>Gunakan mesin untuk berbagai latihan seperti chest press, lat pulldown, leg extension, dan lainnya. Pastikan gerakan dilakukan dengan kontrol dan fokus pada kontraksi otot.</li>
+                  <li>Setelah selesai, kembalikan semua pegangan dan beban ke posisi awal dan pastikan mesin dalam kondisi aman sebelum meninggalkannya.</li> 
+                </ol>
+              </div>
+              <div class="modal-status status-go"><i class="dot"></i>Tersedia 1 Unit</div>
+            </div>
+          </div>
+        </article>
+
+         <!-- 019 KETTLEBELL SET -->
+        <article class="equipment-item cat-upper">
+          <input type="checkbox" id="smith-machine" class="modal-toggle">
+          <div class="card">
+            <div class="card-top-row">
+              <span class="tag-hole"></span><span class="card-unit">UNIT NO. 19</span>
+            </div>
+            <div class="card-kicker">Upper Body</div>
+            <div class="gambar.alat">
+            <img src="smithh.jpeg" alt="Universitas" class="campus-image">
+            </div>
+            <h3 class="card-title">Smith Machine</h3>
+            <p class="card-brand">Technogym</p>
+            <p class="card-desc">Manfaat utama dari Smith Machine adalah memberikan keamanan mutlak dan stabilitas penuh saat Anda mengangkat beban berat sendirian berkat jalur barbel yang dipandu oleh rel baja vertical.</p>
+            <label for="smith-machine" class="btn-detail">Lihat Detail <svg aria-hidden="true"><use href="#ic-arrow"></use></svg></label>
+          </div>
+          <div class="modal">
+            <label for="smith-machine" class="modal-backdrop" aria-hidden="true"></label>
+            <div class="modal-box" role="dialog" aria-label="Detail Smith Machine">
+              <label for="smith-machine" class="modal-close" aria-label="Tutup detail"><svg aria-hidden="true"><use href="#ic-close"></use></svg></label>
+              <div class="modal-top-row"><span class="tag-hole"></span><span class="modal-unit">UNIT NO. 19</span></div>
+              <div class="modal-top">
+                <div class="gambar.alat">
+            <img src="smithh.jpeg" alt="Universitas" class="campus-image">
+            </div>
+                <div><div class="modal-kicker">UpperBody</div><h3>Smith Machine</h3><p class="modal-brand">Technogym</p></div>
+              </div>
+              <p class="modal-desc">Manfaat utama dari Smith Machine adalah memberikan keamanan mutlak dan stabilitas penuh saat Anda mengangkat beban berat sendirian berkat jalur barbel yang dipandu oleh rel baja vertical.</p>
+              <p class="modal-desc">1. Keamanan Mandiri Tanpa Spotter.</p>
+              <p class="modal-desc">2. Isolasi Otot Target Lebih Optimal.</p>
+              <p class="modal-desc">3. Kebebasan Eksperimen Posisi Kaki.</p>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-info"></use></svg>Informasi Alat</h4>
+                <ul class="info-list">
+                  <li><span>Target Latihan</span><strong>Inti tubuh, bahu, kaki &amp; koordinasi</strong></li>
+                  <li><span>Kapasitas Beban</span><strong>4–40 kg per unit</strong></li>
+                  <li><span>Level</span><strong>Menengah–Lanjutan</strong></li>
+                </ul>
+              </div>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-steps"></use></svg>Cara Pemakaian</h4>
+                <ol class="steps-list">
+                  <a href="https://www.youtube.com/watch?v=oU97DSNtnUQ&pp=ygUPTXVsdGkgUG93ZXIgZ3lt" class="btn" target="_blank">Lihat Cara Memakai Alat</a>
+                  <li>Memakai Smith Machine, pertama-tama pastikan Anda memilih beban yang sesuai dengan kemampuan Anda. Mulailah dengan beban yang lebih ringan jika Anda pemula.</li>
+                  <li>Duduk atau berdiri di bawah barbel, pastikan posisi tubuh stabil dan aman sebelum memulai gerakan. Sesuaikan posisi barbel agar sejajar dengan target otot yang ingin dilatih.</li>
+                  <li>Genggam barbel dengan kedua tangan, pastikan posisi tubuh stabil.</li>
+                  <li>Lakukan gerakan latihan sesuai dengan jenis latihan yang dipilih (misalnya bench press, squats, atau shoulder press), fokus pada kontraksi otot dan hindari menggunakan momentum. Kembali ke posisi awal dengan kontrol, lalu ulangi sesuai jumlah repetisi yang diinginkan.</li> 
+                </ol>
+              </div>
+              <div class="modal-status status-go"><i class="dot"></i>Tersedia 1 Unit</div>
+            </div>
+          </div>
+        </article>
+
+         <!-- 020 KETTLEBELL SET -->
+        <article class="equipment-item cat-fullbody">
+          <input type="checkbox" id="treadmill" class="modal-toggle">
+          <div class="card">
+            <div class="card-top-row">
+              <span class="tag-hole"></span><span class="card-unit">UNIT NO. 20</span>
+            </div>
+            <div class="card-kicker">Full Body</div>
+            <div class="gambar.alat">
+            <img src="treadmill.jpeg" alt="Universitas" class="campus-image">
+            </div>
+            <h3 class="card-title">Treadmill</h3>
+            <p class="card-brand">Technogym</p>
+            <p class="card-desc">Treadmill adalah alat olahraga berbasis sabuk berjalan (running belt) yang dirancang untuk aktivitas berjalan, jalan cepat, atau berlari di dalam ruangan.</p>
+            <label for="treadmill" class="btn-detail">Lihat Detail <svg aria-hidden="true"><use href="#ic-arrow"></use></svg></label>
+          </div>
+          <div class="modal">
+            <label for="treadmill" class="modal-backdrop" aria-hidden="true"></label>
+            <div class="modal-box" role="dialog" aria-label="Detail Treadmill">
+              <label for="treadmill" class="modal-close" aria-label="Tutup detail"><svg aria-hidden="true"><use href="#ic-close"></use></svg></label>
+              <div class="modal-top-row"><span class="tag-hole"></span><span class="modal-unit">UNIT NO. 20</span></div>
+              <div class="modal-top">
+                <div class="gambar.alat">
+            <img src="treadmill.jpeg" alt="Universitas" class="campus-image">
+            </div>
+                <div><div class="modal-kicker">Full Body</div><h3>Treadmill</h3><p class="modal-brand">Technogym</p></div>
+              </div>
+              <p class="modal-desc">Manfaat utama dari treadmill adalah meningkatkan kesehatan jantung (kardiovaskular) dan membakar kalori secara efisien dalam lingkungan latihan yang aman, terkontrol, dan tidak terpengaruh cuaca. .</p>
+              <p class="modal-desc">1. Kesehatan Jantung dan Stamina.</p>
+              <p class="modal-desc">2. Meningkatkan Daya Tahan Tubuh.</p>
+              <p class="modal-desc">3. Lebih Ramah Sendi Dibandingkan Aspal.</p>
+              <p class="modal-desc">4. Kontrol Latihan Penuh dan Terukur.</p>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-info"></use></svg>Informasi Alat</h4>
+                <ul class="info-list">
+                  <li><span>Target Latihan</span><strong>Inti tubuh, bahu, kaki &amp; koordinasi</strong></li>
+                  <li><span>Kapasitas Beban</span><strong>4–40 kg per unit</strong></li>
+                  <li><span>Level</span><strong>Menengah–Lanjutan</strong></li>
+                </ul>
+              </div>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-steps"></use></svg>Cara Pemakaian</h4>
+                <ol class="steps-list">
+                  <a href="https://www.youtube.com/watch?v=D-TnGbolC_0&pp=ygUaY2FyYSBtZW5nZ3VuYWthbiB0cmVhZG1pbGw%3D" class="btn" target="_blank">Lihat Cara Memakai Alat</a>
+                  <li>Memakai Treadmill, pertama-tama pastikan Anda mengenakan sepatu olahraga yang sesuai dan nyaman. Mulailah dengan kecepatan rendah untuk pemanasan.</li>
+                  <li>Gunakan pegangan samping untuk keseimbangan saat memulai, lalu lepaskan pegangan saat Anda merasa stabil. Fokus pada postur tubuh yang tegak dan langkah yang alami.</li>
+                  <li>Atur kecepatan dan kemiringan sesuai tingkat kebugaran dan tujuan latihan Anda. Gunakan program yang tersedia pada treadmill jika ingin variasi latihan.</li>
+                  <li>Setelah selesai, turunkan kecepatan secara bertahap untuk pendinginan, lalu matikan treadmill dan pastikan sabuk berhenti sepenuhnya sebelum turun dari alat.</li>
+                </ol>
+              </div>
+              <div class="modal-status status-go"><i class="dot"></i>Tersedia 1 Unit</div>
+            </div>
+          </div>
+        </article>
+
+         <!-- 21 KETTLEBELL SET -->
+        <article class="equipment-item cat-upper">
+          <input type="checkbox" id="Olympic Shoulders Bench Press" class="modal-toggle">
+          <div class="card">
+            <div class="card-top-row">
+              <span class="tag-hole"></span><span class="card-unit">UNIT NO. 21</span>
+            </div>
+            <div class="card-kicker">Upper Body</div>
+            <div class="gambar.alat">
+            <img src="Olympic Shoulders Bench Press.jpeg" alt="Universitas" class="campus-image">
+            </div>
+            <h3 class="card-title">Olympic Shoulders Bench Press</h3>
+            <p class="card-brand">Technogym</p>
+            <p class="card-desc">Alat Olympic Shoulder Bench Press (atau sering disebut Olympic Shoulder Bench) 
+              adalah bangku latihan standar kompetisi yang dirancang khusus untuk melakukan gerakan dorong ke atas 
+              (overhead press/shoulder press) menggunakan barbel. Alat ini memiliki sandaran punggung yang tegak (atau hampir tegak) dan dilengkapi dengan tiang penyangga barbel (rack) yang kokoh.</p>
+            <label for="Olympic Shoulders Bench Press" class="btn-detail">Lihat Detail <svg aria-hidden="true"><use href="#ic-arrow"></use></svg></label>
+          </div>
+          <div class="modal">
+            <label for="Olympic Shoulders Bench Press" class="modal-backdrop" aria-hidden="true"></label>
+            <div class="modal-box" role="dialog" aria-label="Detail Kettlebell Set">
+              <label for="Olympic Shoulders Bench Press" class="modal-close" aria-label="Tutup detail"><svg aria-hidden="true"><use href="#ic-close"></use></svg></label>
+              <div class="modal-top-row"><span class="tag-hole"></span><span class="modal-unit">UNIT NO. 21</span></div>
+              <div class="modal-top">
+                <div class="gambar.alat">
+            <img src="Olympic Shoulders Bench Press.jpeg" alt="Universitas" class="campus-image">
+            </div>
+                <div><div class="modal-kicker">Upper Body</div><h3>Olympic Shoulders Bench Press</h3><p class="modal-brand">Technogym</p></div>
+              </div>
+              <p class="modal-desc">1. Isolasi dan Maksimalisasi Otot Bahu</p>
+              <p class="modal-desc">2. Stabilitas dan Keamanan Tinggi</p>
+              <p class="modal-desc">3. Peningkatan Performa Angkat Beban</p>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-info"></use></svg>Informasi Alat</h4>
+                <ul class="info-list">
+                  <li><span>Target Latihan</span><strong>Inti tubuh, bahu, kaki &amp; koordinasi</strong></li>
+                  <li><span>Kapasitas Beban</span><strong>4–40 kg per unit</strong></li>
+                  <li><span>Level</span><strong>Menengah–Lanjutan</strong></li>
+                </ul>
+              </div>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-steps"></use></svg>Cara Pemakaian</h4>
+                <ol class="steps-list">
+                  <a href="https://www.youtube.com/watch?v=HWnQe0QGuUU&pp=ygUdT2x5bXBpYyBTaG91bGRlcnMgQmVuY2ggUHJlc3M%3D" class="btn" target="_blank">Lihat Cara Memakai Alat</a>
+                  <li>Memakai Olympic Shoulder Bench Press, pertama-tama pastikan Anda memilih beban yang sesuai dengan kemampuan Anda. Mulailah dengan beban yang lebih ringan jika Anda pemula.</li>
+                  <li>Duduk di bangku dengan punggung menempel pada sandaran, pastikan posisi tubuh stabil dan aman sebelum memulai gerakan. Sesuaikan posisi barbel agar sejajar dengan bahu Anda.</li>
+                  <li>Genggam barbel dengan kedua tangan, pastikan posisi tubuh stabil.</li>
+                  <li>Lakukan gerakan dorong ke atas (overhead press) dengan fokus pada kontraksi otot bahu dan hindari menggunakan momentum. Kembali ke posisi awal dengan kontrol, lalu ulangi sesuai jumlah repetisi yang diinginkan.</li>
+                </ol>
+              </div>
+              <div class="modal-status status-go"><i class="dot"></i>Tersedia 1 Unit</div>
+            </div>
+          </div>
+        </article>
+
+         <!-- 22 PECTORAL MACHINE -->
+        <article class="equipment-item cat-upper">
+          <input type="checkbox" id="pectoral" class="modal-toggle">
+          <div class="card">
+            <div class="card-top-row">
+              <span class="tag-hole"></span><span class="card-unit">UNIT NO. 22</span>
+            </div>
+            <div class="card-kicker">Upper Body</div>
+            <div class="gambar.alat">
+            <img src="pectoral.jpeg" alt="Universitas" class="campus-image">
+            </div>
+            <h3 class="card-title">Pectoral Machine</h3>
+            <p class="card-brand">Technogym</p>
+            <p class="card-desc">Pectoral Machine (atau sering dikenal sebagai mesin Chest Fly atau Pec Deck) adalah alat fitness yang dirancang khusus untuk mengisolasi otot dada dengan gerakan meremas ke arah dalam (gerakan adduksi horizontal)..</p>
+            <label for="pectoral" class="btn-detail">Lihat Detail <svg aria-hidden="true"><use href="#ic-arrow"></use></svg></label>
+          </div>
+          <div class="modal">
+            <label for="pectoral" class="modal-backdrop" aria-hidden="true"></label>
+            <div class="modal-box" role="dialog" aria-label="Detail Pectoral Machine">
+              <label for="pectoral" class="modal-close" aria-label="Tutup detail"><svg aria-hidden="true"><use href="#ic-close"></use></svg></label>
+              <div class="modal-top-row"><span class="tag-hole"></span><span class="modal-unit">UNIT NO. 22</span></div>
+              <div class="modal-top">
+                <div class="gambar.alat">
+            <img src="pectoral.jpeg" alt="Universitas" class="campus-image">
+            </div>
+                <div><div class="modal-kicker">Upper Body</div><h3>Pectoral Machine</h3><p class="modal-brand">Technogym</p></div>
+              </div>
+              <p class="modal-desc">Manfaat utama dari alat ini adalah mengisolasi otot dada (pectoralis major) secara total tanpa melibatkan otot lengan belakang (tricep), sehingga sangat efektif untuk mempertegas garis tengah dada.</p>
+              <p class="modal-desc">1. Isolasi Otot Dada yang Sempurna</p>
+              <p class="modal-desc">2. Menargetkan Area Dada Spesifik</p>
+              <p class="modal-desc">3. Sangat Aman dan Ramah Sendi</p>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-info"></use></svg>Informasi Alat</h4>
+                <ul class="info-list">
+                  <li><span>Target Latihan</span><strong>Inti tubuh, bahu, kaki &amp; koordinasi</strong></li>
+                  <li><span>Kapasitas Beban</span><strong>4–40 kg per unit</strong></li>
+                  <li><span>Level</span><strong>Menengah–Lanjutan</strong></li>
+                </ul>
+              </div>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-steps"></use></svg>Cara Pemakaian</h4>
+                <ol class="steps-list">
+                  <a href="https://www.youtube.com/watch?v=PDsX_vjjXsA&pp=ygUQcGVjdG9yYWwgbWFjaGluZQ%3D%3D" class="btn" target="_blank">Lihat Cara Memakai Alat</a>
+                  <li>Memakai Pectoral Machine, pertama-tama pastikan Anda memilih beban yang sesuai dengan kemampuan Anda. Mulailah dengan beban yang lebih ringan jika Anda pemula.</li>
+                  <li>Duduk di kursi mesin dengan punggung menempel pada sandaran, pastikan posisi tubuh stabil dan aman sebelum memulai gerakan. Sesuaikan posisi pegangan agar sejajar dengan dada Anda.</li>
+                  <li>Genggam pegangan dengan kedua tangan, pastikan posisi tubuh stabil.</li>
+                  <li>Lakukan gerakan meremas ke arah dalam (adduksi horizontal) dengan fokus pada kontraksi otot dada dan hindari menggunakan momentum. Kembali ke posisi awal dengan kontrol, lalu ulangi sesuai jumlah repetisi yang diinginkan.</li>
+                </ol>
+              </div>
+              <div class="modal-status status-go"><i class="dot"></i>Tersedia 1 Unit</div>
+            </div>
+          </div>
+        </article>
+
+         <!-- 23 KETTLEBELL SET -->
+        <article class="equipment-item cat-upper">
+          <input type="checkbox" id="arm-extention" class="modal-toggle">
+          <div class="card">
+            <div class="card-top-row">
+              <span class="tag-hole"></span><span class="card-unit">UNIT NO. 23</span>
+            </div>
+            <div class="card-kicker">Upper Body</div>
+            <div class="gambar.alat">
+            <img src="arm extension.jpeg" alt="Universitas" class="campus-image">
+            </div>
+            <h3 class="card-title">Arm Extention</h3>
+            <p class="card-brand">Technogym</p>
+            <p class="card-desc">Arm Extension Machine (atau sering disebut mesin Tricep Extension) adalah alat fitness yang dirancang khusus untuk melatih otot tubuh bagian belakang lengan, yaitu otot tricep (triceps brachii). Gerakan utama alat ini adalah meluruskan lengan ke bawah atau ke depan melawan resistensi beban..</p>
+            <label for="arm-extention" class="btn-detail">Lihat Detail <svg aria-hidden="true"><use href="#ic-arrow"></use></svg></label>
+          </div>
+          <div class="modal">
+            <label for="arm-extention" class="modal-backdrop" aria-hidden="true"></label>
+            <div class="modal-box" role="dialog" aria-label="Detail Arm Extention">
+              <label for="arm-extention" class="modal-close" aria-label="Tutup detail"><svg aria-hidden="true"><use href="#ic-close"></use></svg></label>
+              <div class="modal-top-row"><span class="tag-hole"></span><span class="modal-unit">UNIT NO. 23</span></div>
+              <div class="modal-top">
+                <div class="gambar.alat">
+            <img src="arm extension.jpeg" alt="Universitas" class="campus-image">
+            </div>
+                <div><div class="modal-kicker">Upper Body</div><h3>Arm Extension</h3><p class="modal-brand">Technogym</p></div>
+              </div>
+              <p class="modal-desc">Manfaat utama dari alat ini adalah mengisolasi otot lengan belakang secara total dengan aman, guna menciptakan lengan yang kencang, padat, dan tampak lebih besar.s.</p>
+              <p class="modal-desc">1. Isolasi Otot Tricep yang Maksimal</p>
+              <p class="modal-desc">2. Meningkatkan Kekuatan Lengan</p>
+              <p class="modal-desc">3. Membantu Membentuk Lengan yang Lebih Besar dan Kencang</p>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-info"></use></svg>Informasi Alat</h4>
+                <ul class="info-list">
+                  <li><span>Target Latihan</span><strong>Inti tubuh, bahu, kaki &amp; koordinasi</strong></li>
+                  <li><span>Kapasitas Beban</span><strong>4–40 kg per unit</strong></li>
+                  <li><span>Level</span><strong>Menengah–Lanjutan</strong></li>
+                </ul>
+              </div>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-steps"></use></svg>Cara Pemakaian</h4>
+                <ol class="steps-list">
+                  <a href="https://www.youtube.com/watch?v=ZOke6S0opwQ&pp=ygUeY2FyYSBtZW5nZ3VuYWthbiBBcm0gRXh0ZW5zaW9u" class="btn" target="_blank">Lihat Cara Memakai Alat</a>
+                  <li>Menggunakan Arm Extension Machine, pertama-tama pastikan Anda memilih beban yang sesuai dengan kemampuan Anda. Mulailah dengan beban yang lebih ringan jika Anda pemula.</li>
+                  <li>Duduk di kursi mesin dengan punggung menempel pada sandaran, pastikan posisi tubuh stabil dan aman sebelum memulai gerakan. Sesuaikan posisi pegangan agar sejajar dengan lengan Anda.</li>
+                  <li>Genggam pegangan dengan kedua tangan, pastikan posisi tubuh stabil.</li>
+                  <li>Lakukan gerakan meluruskan lengan ke bawah atau ke depan dengan fokus pada kontraksi otot tricep dan hindari menggunakan momentum. Kembali ke posisi awal dengan kontrol, lalu ulangi sesuai jumlah repetisi yang diinginkan.</li>
+                </ol>
+              </div>
+              <div class="modal-status status-go"><i class="dot"></i>Tersedia 1 Unit</div>
+            </div>
+          </div>
+        </article>
+
+         <!-- 24 KETTLEBELL SET -->
+        <article class="equipment-item cat-upper">
+          <input type="checkbox" id="Upper Back Machine" class="modal-toggle">
+          <div class="card">
+            <div class="card-top-row">
+              <span class="tag-hole"></span><span class="card-unit">UNIT NO. 24</span>
+            </div>
+            <div class="card-kicker">Upper Body</div>
+            <div class="gambar.alat">
+            <img src="upper back.jpeg" alt="Universitas" class="campus-image">
+            </div>
+            <h3 class="card-title">Upper Back Machine</h3>
+            <p class="card-brand">Technogym</p>
+            <p class="card-desc">Upper Back Machine (sering disebut mesin Seated Row dengan pegangan tinggi atau Rear Delt/Row Machine) adalah alat gym yang dirancang khusus untuk melatih otot punggung bagian atas. Gerakan utamanya adalah menarik tuas atau pegangan ke arah dada dengan posisi siku terbuka lebar ke samping. .</p>
+            <label for="Upper Back Machine" class="btn-detail">Lihat Detail <svg aria-hidden="true"><use href="#ic-arrow"></use></svg></label>
+          </div>
+          <div class="modal">
+            <label for="Upper Back Machine" class="modal-backdrop" aria-hidden="true"></label>
+            <div class="modal-box" role="dialog" aria-label="Detail Upper Back Machine">
+              <label for="Upper Back Machine" class="modal-close" aria-label="Tutup detail"><svg aria-hidden="true"><use href="#ic-close"></use></svg></label>
+              <div class="modal-top-row"><span class="tag-hole"></span><span class="modal-unit">UNIT NO. 24</span></div>
+              <div class="modal-top">
+                <div class="gambar.alat">
+            <img src="upper back.jpeg" alt="Universitas" class="campus-image">
+            </div>
+                <div><div class="modal-kicker">Upper Body</div><h3>Upper Back Machine</h3><p class="modal-brand">Technogym</p></div>
+              </div>
+              <p class="modal-desc">Manfaat utama dari alat ini adalah memperbaiki postur tubuh bungkuk sekaligus membangun ketebalan dan definisi otot punggung bagian atas secara presisi dan aman.</p>
+              <p class="modal-desc">1. Memperbaiki Postur Tubuh Bungkuk</p>
+              <p class="modal-desc">2. Meningkatkan Kekuatan dan Ketebalan Otot Punggung</p>
+              <p class="modal-desc">3. Mengurangi Risiko Cedera Punggung</p>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-info"></use></svg>Informasi Alat</h4>
+                <ul class="info-list">
+                  <li><span>Target Latihan</span><strong>Inti tubuh, bahu, kaki &amp; koordinasi</strong></li>
+                  <li><span>Kapasitas Beban</span><strong>4–40 kg per unit</strong></li>
+                  <li><span>Level</span><strong>Menengah–Lanjutan</strong></li>
+                </ul>
+              </div>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-steps"></use></svg>Cara Pemakaian</h4>
+                <ol class="steps-list">
+                  <a href="https://www.youtube.com/watch?v=TH8IA3k_2B0&pp=ygUiY2FyYSBtZW5nZ3VuYWthbiBVcHBlcmJhY2sgTWFjaGluZQ%3D%3D" class="btn" target="_blank">Lihat Cara Memakai Alat</a>
+                  <li>Menggunakan Upper Back Machine, pertama-tama pastikan Anda memilih beban yang sesuai dengan kemampuan Anda. Mulailah dengan beban yang lebih ringan jika Anda pemula.</li>
+                  <li>Duduk di kursi mesin dengan punggung menempel pada sandaran, pastikan posisi tubuh stabil dan aman sebelum memulai gerakan. Sesuaikan posisi pegangan agar sejajar dengan dada Anda.</li>
+                  <li>Genggam pegangan dengan kedua tangan, pastikan posisi tubuh stabil.</li>
+                  <li>Lakukan gerakan menarik pegangan ke arah dada dengan fokus pada kontraksi otot punggung bagian atas dan hindari menggunakan momentum. Kembali ke posisi awal dengan kontrol, lalu ulangi sesuai jumlah repetisi yang diinginkan.</li>
+                </ol>
+              </div>
+              <div class="modal-status status-go"><i class="dot"></i>Tersedia 1 Unit</div>
+            </div>
+          </div>
+        </article>
+
+         <!-- 025 KETTLEBELL SET -->
+        <article class="equipment-item cat-lower">
+          <input type="checkbox" id="adductor" class="modal-toggle">
+          <div class="card">
+            <div class="card-top-row">
+              <span class="tag-hole"></span><span class="card-unit">UNIT NO. 25</span>
+            </div>
+            <div class="card-kicker">Lower Body </div>
+            <div class="gambar.alat">
+            <img src="adductor.jpeg" alt="Universitas" class="campus-image">
+            </div>
+            <h3 class="card-title">Adductor Machine</h3>
+            <p class="card-brand">Technogym</p>
+            <p class="card-desc">Adductor Machine (atau sering disebut Hip Adduction Machine) adalah alat fitness yang dirancang khusus untuk melatih kelompok otot paha bagian dalam. Kebalikan dari abductor, gerakan utama alat ini adalah menjepit atau merapatkan bantalan ke arah dalam menuju garis tengah tubuh.</p>
+            <label for="adductor" class="btn-detail">Lihat Detail <svg aria-hidden="true"><use href="#ic-arrow"></use></svg></label>
+          </div>
+          <div class="modal">
+            <label for="adductor" class="modal-backdrop" aria-hidden="true"></label>
+            <div class="modal-box" role="dialog" aria-label="Detail Adductor Machine">
+              <label for="adductor" class="modal-close" aria-label="Tutup detail"><svg aria-hidden="true"><use href="#ic-close"></use></svg></label>
+              <div class="modal-top-row"><span class="tag-hole"></span><span class="modal-unit">UNIT NO. 25</span></div>
+              <div class="modal-top">
+                <div class="gambar.alat">
+            <img src="adductor.jpeg" alt="Universitas" class="campus-image">
+              </div>
+                  <div><div class="modal-kicker">Lower Body</div><h3>Adductor Machine</h3><p class="modal-brand">Technogym</p></div>
+              </div>
+              <p class="modal-desc">Manfaat utama dari alat ini adalah memperkuat otot paha dalam untuk meningkatkan stabilitas lutut serta memberikan bentuk paha yang lebih kencang dan proporsional.</p>
+              <p class="modal-desc">1. Menguatkan Otot Paha Dalam</p>
+              <p class="modal-desc">2. Meningkatkan Stabilitas Lutut</p>
+              <p class="modal-desc">3. Membantu Membentuk Paha yang Lebih Kencang dan Proporsional</p>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-info"></use></svg>Informasi Alat</h4>
+                <ul class="info-list">
+                  <li><span>Target Latihan</span><strong>Inti tubuh, bahu, kaki &amp; koordinasi</strong></li>
+                  <li><span>Kapasitas Beban</span><strong>4–40 kg per unit</strong></li>
+                  <li><span>Level</span><strong>Menengah–Lanjutan</strong></li>
+                </ul>
+              </div>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-steps"></use></svg>Cara Pemakaian</h4>
+                <ol class="steps-list">
+                  <a href="https://www.youtube.com/watch?v=e9AqTFMmP18&pp=ygUjY2FyYSBtZW5nZ3VuYWthbiBBYmR1Y3RvciBTZWxlY3Rpb24%3D" class="btn" target="_blank">Lihat Cara Memakai Alat</a>
+                  <li>Pertama yang harus di lakukan duduk dan letakkan kaki di tempatnya </li>
+                  <li>Lalu satu kan kedua kaki ke tengah, usahakan sampai bersentuhan</li>
+                </ol>
+              </div>
+              <div class="modal-status status-go"><i class="dot"></i>Tersedia 1 Unit</div>
+            </div>
+          </div>
+        </article>
+
+         <!-- 026 STATIC BIKE -->
+        <article class="equipment-item cat-lower">
+          <input type="checkbox" id="Static Bike" class="modal-toggle">
+          <div class="card">
+            <div class="card-top-row">
+              <span class="tag-hole"></span><span class="card-unit">UNIT NO. 26</span>
+            </div>
+            <div class="card-kicker">Lower Body</div>
+            <div class="gambar.alat">
+            <img src="static-bike.jpeg" alt="Universitas" class="campus-image">
+            </div>
+            <h3 class="card-title">Static Bike</h3>
+            <p class="card-brand">Technogym</p>
+            <p class="card-desc">Static bike (sepeda statis) adalah alat olahraga kardio yang dirancang untuk mensimulasikan aktivitas 
+              bersepeda di dalam ruangan. Alat ini menjadi pilihan populer karena memberikan latihan berintensitas tinggi namun minim risiko cedera sendi.</p>
+            <label for="Static Bike" class="btn-detail">Lihat Detail <svg aria-hidden="true"><use href="#ic-arrow"></use></svg></label>
+          </div>
+          <div class="modal">
+            <label for="Static Bike" class="modal-backdrop" aria-hidden="true"></label>
+            <div class="modal-box" role="dialog" aria-label="Detail Static Bike">
+              <label for="Static Bike" class="modal-close" aria-label="Tutup detail"><svg aria-hidden="true"><use href="#ic-close"></use></svg></label>
+              <div class="modal-top-row"><span class="tag-hole"></span><span class="modal-unit">UNIT NO. 26</span></div>
+              <div class="modal-top">
+                <div class="gambar.alat">
+            <img src="static-bike.jpeg" alt="Universitas" class="campus-image">
+            </div>
+                <div><div class="modal-kicker">Lower Body</div><h3>Static Bike</h3><p class="modal-brand">Technogym</p></div>
+              </div>
+              <p class="modal-desc">Static bike (sepeda statis) adalah alat olahraga kardio yang dirancang untuk mensimulasikan aktivitas 
+              bersepeda di dalam ruangan. Alat ini menjadi pilihan populer karena memberikan latihan berintensitas tinggi namun minim risiko cedera sendi.</p>
+              <p class="modal-desc">1. Latihan Kardio Efektif dan Aman</p>
+              <p class="modal-desc">2. Meningkatkan Kesehatan Jantung dan Stamina</p>
+              <p class="modal-desc">3. Membakar Kalori dan Lemak Lebih Cepat</p>
+              <p class="modal-desc">4. Meningkatkan Kebugaran</p>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-info"></use></svg>Informasi Alat</h4>
+                <ul class="info-list">
+                  <li><span>Target Latihan</span><strong>Inti tubuh, bahu, kaki &amp; koordinasi</strong></li>
+                  <li><span>Kapasitas Beban</span><strong>4–40 kg per unit</strong></li>
+                  <li><span>Level</span><strong>Menengah–Lanjutan</strong></li>
+                </ul>
+              </div>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-steps"></use></svg>Cara Pemakaian</h4>
+                <ol class="steps-list">
+                  <a href="https://www.youtube.com/watch?v=T_0Y9K45Nak&pp=ygULU3RhdGljIEJpa2U%3D" class="btn" target="_blank">Lihat Cara Memakai Alat</a>
+                </ol>
+              </div>
+              <div class="modal-status status-go"><i class="dot"></i>Tersedia 1 Unit</div>
+            </div>
+          </div>
+        </article>
+
+         <!-- 27 Flexability Posterior -->
+        <article class="equipment-item cat-lower">
+          <input type="checkbox" id="Flexability Posterior" class="modal-toggle">
+          <div class="card">
+            <div class="card-top-row">
+              <span class="tag-hole"></span><span class="card-unit">UNIT NO. 27</span>
+            </div>
+            <div class="card-kicker">Lower Body</div>
+            <div class="gambar.alat">
+            <img src="Flexability Posterior.jpeg" alt="Universitas" class="campus-image">
+            </div>
+            <h3 class="card-title">Flexability Posterior</h3>
+            <p class="card-brand">Technogym</p>
+            <p class="card-desc">Alat Flexability Posterior adalah mesin peregangan (stretching) khusus yang dirancang untuk memanjangkan seluruh jaringan otot rantai belakang tubuh (posterior chain) secara lembut, bertahap, dan terukur. Alat ini memposisikan pengguna dalam keadaan berbaring dengan kaki terangkat ke atas untuk mengisolasi peregangan dengan aman.</p>
+            <label for="Flexability Posterior" class="btn-detail">Lihat Detail <svg aria-hidden="true"><use href="#ic-arrow"></use></svg></label>
+          </div>
+          <div class="modal">
+            <label for="Flexability Posterior" class="modal-backdrop" aria-hidden="true"></label>
+            <div class="modal-box" role="dialog" aria-label="Detail Flexability Posterior">
+              <label for="Flexability Posterior" class="modal-close" aria-label="Tutup detail"><svg aria-hidden="true"><use href="#ic-close"></use></svg></label>
+              <div class="modal-top-row"><span class="tag-hole"></span><span class="modal-unit">UNIT NO. 27</span></div>
+              <div class="modal-top">
+                <div class="gambar.alat">
+            <img src="Flexability Posterior.jpeg" alt="Universitas" class="campus-image">
+            </div>
+                <div><div class="modal-kicker">Lower Body</div><h3>Flexability Posterior</h3><p class="modal-brand">Technogym</p></div>
+              </div>
+              <p class="modal-desc">Alat Flexability Posterior adalah mesin peregangan (stretching) khusus yang dirancang untuk memanjangkan seluruh jaringan otot rantai belakang tubuh (posterior chain) secara lembut, bertahap, dan terukur.</p>
+              <p class="modal-desc">1. Meningkatkan Fleksibilitas dan Rentang Gerak</p>
+              <p class="modal-desc">2. Mengurangi Ketegangan Otot dan Nyeri Punggung</p>
+              <p class="modal-desc">3. Meningkatkan Postur Tubuh dan Keseimbangan</p>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-info"></use></svg>Informasi Alat</h4>
+                <ul class="info-list">
+                  <li><span>Target Latihan</span><strong>Inti tubuh, bahu, kaki &amp; koordinasi</strong></li>
+                  <li><span>Kapasitas Beban</span><strong>4–40 kg per unit</strong></li>
+                  <li><span>Level</span><strong>Menengah–Lanjutan</strong></li>
+                </ul>
+              </div>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-steps"></use></svg>Cara Pemakaian</h4>
+                <ol class="steps-list">
+                  <a href="https://www.youtube.com/watch?v=7Q-TcsyKzqo&pp=ygUVRmxleGFiaWxpdHkgUG9zdGVyaW9y" class="btn" target="_blank">Lihat Cara Memakai Alat</a>
+                </ol>
+              </div>
+              <div class="modal-status status-go"><i class="dot"></i>Tersedia 1 Unit</div>
+            </div>
+          </div>
+        </article>
+
+         <!-- 28 Olympic Flat Bench Press -->
+        <article class="equipment-item cat-upper">
+          <input type="checkbox" id="modal-olympic-flat-bench-press" class="modal-toggle">
+          <div class="card">
+            <div class="card-top-row">
+              <span class="tag-hole"></span><span class="card-unit">UNIT NO. 28</span>
+            </div>
+            <div class="card-kicker">Upper Body</div>
+            <div class="gambar.alat">
+            <img src="of.jpeg" alt="Universitas" class="campus-image">
+            </div>
+            <h3 class="card-title">Olympic Flat Bench Press</h3>
+            <p class="card-brand">Technogym</p>
+            <p class="card-desc">Alat Olympic Flat Bench Press adalah bangku latihan beban mendatar standar kompetisi yang dirancang khusus untuk melatih otot tubuh bagian atas menggunakan barbel. Alat ini dilengkapi dengan tiang penyangga barbel (rack) yang menyatu dan kokoh untuk menahan beban yang sangat berat.</p>
+            <label for="modal-olympic-flat-bench-press" class="btn-detail">Lihat Detail <svg aria-hidden="true"><use href="#ic-arrow"></use></svg></label>
+          </div>
+          <div class="modal">
+            <label for="modal-olympic-flat-bench-press" class="modal-backdrop" aria-hidden="true"></label>
+            <div class="modal-box" role="dialog" aria-label="Detail Olympic Flat Bench Press">
+              <label for="modal-olympic-flat-bench-press" class="modal-close" aria-label="Tutup detail"><svg aria-hidden="true"><use href="#ic-close"></use></svg></label>
+              <div class="modal-top-row"><span class="tag-hole"></span><span class="modal-unit">UNIT NO. 28</span></div>
+              <div class="modal-top">
+                <div class="gambar.alat">
+            <img src="of.jpeg" alt="Universitas" class="campus-image">
+            </div>
+                <div><div class="modal-kicker">Upper Body</div><h3>Olympic Flat Bench Press</h3><p class="modal-brand">Technogym</p></div>
+              </div>
+              <p class="modal-desc">Alat Olympic Flat Bench Press adalah bangku latihan beban mendatar standar kompetisi yang dirancang khusus untuk melatih otot tubuh bagian atas menggunakan barbel. Alat ini dilengkapi dengan tiang penyangga barbel (rack) yang menyatu dan kokoh untuk menahan beban yang sangat berat.</p>
+              <p class="modal-desc">1. Latihan Dada yang Efektif</p>
+              <p class="modal-desc">2. Meningkatkan Kekuatan Otot Dada, Bahu, dan Lengan</p>
+              <p class="modal-desc">3. Membantu Meningkatkan Postur Tubuh dan Keseimbangan Otot</p>
+              <p class="modal-desc">4. Meningkatkan Kekuatan dan Stabilitas Otot Inti</p>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-info"></use></svg>Informasi Alat</h4>
+                <ul class="info-list">
+                  <li><span>Target Latihan</span><strong>Inti tubuh, bahu, kaki &amp; koordinasi</strong></li>
+                  <li><span>Kapasitas Beban</span><strong>4–40 kg per unit</strong></li>
+                  <li><span>Level</span><strong>Menengah–Lanjutan</strong></li>
+                </ul>
+              </div>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-steps"></use></svg>Cara Pemakaian</h4>
+                <ol class="steps-list">
+                  <a href="https://www.youtube.com/watch?v=EmnAQIORPx0&pp=ygUYb2x5bXBpYyBmbGF0IGJlbmNoIHByZXNz" class="btn" target="_blank">Lihat Cara Memakai Alat</a>
+                  <li>Mulai dengan berat ringan untuk mempelajari teknik dasar (swing, goblet squat).</li>
+                  <li>Genggam handle dengan kuat, jaga pergelangan tangan tetap netral.</li>
+                  <li>Gerakkan menggunakan tenaga dari pinggul, bukan hanya lengan.</li>
+                  <li>Letakkan kembali ke rak dalam posisi berdiri setelah selesai digunakan.</li>
+                </ol>
+              </div>
+              <div class="modal-status status-go"><i class="dot"></i>Tersedia 1 Unit</div>
+            </div>
+          </div>
+        </article>
+
+         <!-- 29 Chest Incline -->
+        <article class="equipment-item cat-upper">
+          <input type="checkbox" id="modal-Chest Incline" class="modal-toggle">
+          <div class="card">
+            <div class="card-top-row">
+              <span class="tag-hole"></span><span class="card-unit">UNIT NO. 29</span>
+            </div>
+            <div class="card-kicker">Upper Body</div>
+            <div class="gambar.alat">
+            <img src="Chest Incline.jpeg" alt="Universitas" class="campus-image">
+            </div>
+            <h3 class="card-title">Chest Incline</h3>
+            <p class="card-brand">Technogym</p>
+            <p class="card-desc">Alat Chest Incline (baik berupa Incline Bench Press maupun Incline Chest Press Machine) adalah alat latihan beban dengan posisi sandaran yang condong ke atas (biasanya bersudut 30 hingga 45 derajat). Alat ini dirancang khusus untuk memindahkan titik fokus beban ke area tubuh bagian atas.</p>
+            <label for="modal-Chest Incline" class="btn-detail">Lihat Detail <svg aria-hidden="true"><use href="#ic-arrow"></use></svg></label>
+          </div>
+          <div class="modal">
+            <label for="modal-Chest Incline" class="modal-backdrop" aria-hidden="true"></label>
+            <div class="modal-box" role="dialog" aria-label="Detail Chest Incline">
+              <label for="modal-Chest Incline" class="modal-close" aria-label="Tutup detail"><svg aria-hidden="true"><use href="#ic-close"></use></svg></label>
+              <div class="modal-top-row"><span class="tag-hole"></span><span class="modal-unit">UNIT NO. 29</span></div>
+              <div class="modal-top">
+                <div class="gambar.alat">
+            <img src="Chest Incline.jpeg" alt="Universitas" class="campus-image">
+            </div>
+                <div><div class="modal-kicker">Upper Body</div><h3>Chest Incline</h3><p class="modal-brand">Technogym</p></div>
+              </div>
+              <p class="modal-desc">Alat Chest Incline (baik berupa Incline Bench Press maupun Incline Chest Press Machine) adalah alat latihan beban dengan posisi sandaran yang condong ke atas (biasanya bersudut 30 hingga 45 derajat). Alat ini dirancang khusus untuk memindahkan titik fokus beban ke area tubuh bagian atas.</p>
+              <p class="modal-desc">1. Latihan Dada Bagian Atas yang Efektif</p>
+              <p class="modal-desc">2. Meningkatkan Kekuatan Otot Dada, Bahu, dan Lengan</p>
+              <p class="modal-desc">3. Membantu Meningkatkan Postur Tubuh dan Keseimbangan Otot</p>
+              <p class="modal-desc">4. Meningkatkan Kekuatan dan Stabilitas Otot Inti</p>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-info"></use></svg>Informasi Alat</h4>
+                <ul class="info-list">
+                  <li><span>Target Latihan</span><strong>Inti tubuh, bahu, kaki &amp; koordinasi</strong></li>
+                  <li><span>Kapasitas Beban</span><strong>4–40 kg per unit</strong></li>
+                  <li><span>Level</span><strong>Menengah–Lanjutan</strong></li>
+                </ul>
+              </div>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-steps"></use></svg>Cara Pemakaian</h4>
+                <ol class="steps-list">
+                  <a href="https://www.youtube.com/watch?v=I_dcachDaRI&pp=ygUbY2hlc3QgaW5jbGluZSBwcmVzcyBtYWNoaW5l" class="btn" target="_blank">Lihat Cara Memakai Alat</a>
+                  <li>Mulai dengan berat ringan untuk mempelajari teknik dasar (swing, goblet squat).</li>
+                  <li>Genggam handle dengan kuat, jaga pergelangan tangan tetap netral.</li>
+                  <li>Gerakkan menggunakan tenaga dari pinggul, bukan hanya lengan.</li>
+                  <li>Letakkan kembali ke rak dalam posisi berdiri setelah selesai digunakan.</li>
+                </ol>
+              </div>
+              <div class="modal-status status-go"><i class="dot"></i>Tersedia 1 Unit</div>
+            </div>
+          </div>
+        </article>
+
+         <!-- 30 Multi Power -->
+        <article class="equipment-item cat-upper">
+          <input type="checkbox" id="Multi Power" class="modal-toggle">
+          <div class="card">
+            <div class="card-top-row">
+              <span class="tag-hole"></span><span class="card-unit">UNIT NO. 30</span>
+            </div>
+            <div class="card-kicker">Upper Body</div>
+            <div class="gambar.alat">
+            <img src="mp.jpeg" alt="Universitas" class="campus-image">
+            </div>
+            <h3 class="card-title">Multi Power</h3>
+            <p class="card-brand">Technogym</p>
+            <p class="card-desc">Alat Multi Power (atau sering dikenal sebagai Multi Power Machine / Smith Machine) adalah alat latihan beban serbaguna yang dirancang dengan sistem barbel terpandu (guided barbell). Barbel pada alat ini bergerak secara vertikal di sepanjang jalur rel besi yang statis, menggabungkan fleksibilitas angkat beban bebas (free weights) dengan keamanan mesin.</p>
+            <label for="Multi Power" class="btn-detail">Lihat Detail <svg aria-hidden="true"><use href="#ic-arrow"></use></svg></label>
+          </div>
+          <div class="modal">
+            <label for="Multi Power" class="modal-backdrop" aria-hidden="true"></label>
+            <div class="modal-box" role="dialog" aria-label="Detail Multi Power">
+              <label for="Multi Power" class="modal-close" aria-label="Tutup detail"><svg aria-hidden="true"><use href="#ic-close"></use></svg></label>
+              <div class="modal-top-row"><span class="tag-hole"></span><span class="modal-unit">UNIT NO. 30</span></div>
+              <div class="modal-top">
+                <div class="gambar.alat">
+            <img src="mp.jpeg" alt="Universitas" class="campus-image">
+            </div>
+                <div><div class="modal-kicker">Upper Body</div><h3>Multi Power</h3><p class="modal-brand">Technogym</p></div>
+              </div>
+              <p class="modal-desc">Alat Multi Power (atau sering dikenal sebagai Multi Power Machine / Smith Machine) adalah alat latihan beban serbaguna yang dirancang dengan sistem barbel terpandu (guided barbell). Barbel pada alat ini bergerak secara vertikal di sepanjang jalur rel besi yang statis, menggabungkan fleksibilitas angkat beban bebas (free weights) dengan keamanan mesin.</p>
+              <p class="modal-desc">1. Latihan Beban yang Aman dan Terarah</p>
+              <p class="modal-desc">2. Meningkatkan Kekuatan Otot Dada, Bahu, dan Kaki</p>
+              <p class="modal-desc">3. Membantu Meningkatkan Postur Tubuh dan Keseimbangan Otot</p>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-info"></use></svg>Informasi Alat</h4>
+                <ul class="info-list">
+                  <li><span>Target Latihan</span><strong>Inti tubuh, bahu, kaki &amp; koordinasi</strong></li>
+                  <li><span>Kapasitas Beban</span><strong>4–40 kg per unit</strong></li>
+                  <li><span>Level</span><strong>Menengah–Lanjutan</strong></li>
+                </ul>
+              </div>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-steps"></use></svg>Cara Pemakaian</h4>
+                <ol class="steps-list">
+                  <a href="https://www.youtube.com/watch?v=oU97DSNtnUQ&pp=ygUPTXVsdGkgUG93ZXIgZ3lt" class="btn" target="_blank">Lihat Cara Memakai Alat</a>
+                  <li>Mulai dengan berat ringan untuk mempelajari teknik dasar (swing, goblet squat).</li>
+                  <li>Genggam handle dengan kuat, jaga pergelangan tangan tetap netral.</li>
+                  <li>Gerakkan menggunakan tenaga dari pinggul, bukan hanya lengan.</li>
+                  <li>Letakkan kembali ke rak dalam posisi berdiri setelah selesai digunakan.</li>
+                </ol>
+              </div>
+              <div class="modal-status status-go"><i class="dot"></i>Tersedia 1 Unit</div>
+            </div>
+          </div>
+        </article>
+
+         <!-- 31 Vertical Row Lat Pull Down -->
+        <article class="equipment-item cat-upper">
+          <input type="checkbox" id="modal-vertical-row" class="modal-toggle">
+          <div class="card">
+            <div class="card-top-row">
+              <span class="tag-hole"></span><span class="card-unit">UNIT NO. 31</span>
+            </div>
+            <div class="card-kicker">Upper Body</div>
+            <div class="gambar.alat">
+            <img src="Vertical Row Lat Pull Down.jpeg" alt="Universitas" class="campus-image">
+            </div>
+            <h3 class="card-title">Vertical Row Lat Pull Down</h3>
+            <p class="card-brand">Technogym</p>
+            <p class="card-desc">Meskipun Vertical Row dan Lat Pulldown sering digabungkan menjadi satu mesin combo (2-in-1) di gym, keduanya memiliki pola gerakan berbeda yang saling melengkapi. Lat Pulldown menggunakan tarikan vertikal (dari atas ke bawah), sedangkan Vertical Row menggunakan tarikan horizontal (dari depan ke belakang).</p>
+            <label for="modal-vertical-row" class="btn-detail">Lihat Detail <svg aria-hidden="true"><use href="#ic-arrow"></use></svg></label>
+          </div>
+          <div class="modal">
+            <label for="modal-vertical-row" class="modal-backdrop" aria-hidden="true"></label>
+            <div class="modal-box" role="dialog" aria-label="Detail Vertical Row Lat Pull Down">
+              <label for="modal-vertical-row" class="modal-close" aria-label="Tutup detail"><svg aria-hidden="true"><use href="#ic-close"></use></svg></label>
+              <div class="modal-top-row"><span class="tag-hole"></span><span class="modal-unit">UNIT NO. 31</span></div>
+              <div class="modal-top">
+                <div class="gambar.alat">
+            <img src="Vertical Row Lat Pull Down.jpeg" alt="Universitas" class="campus-image">
+            </div>
+                <div><div class="modal-kicker">Upper Body</div><h3>Vertical Row Lat Pull Down</h3><p class="modal-brand">Technogym</p></div>
+              </div>
+              <p class="modal-desc">Vertical Row dan Lat Pulldown sering digabungkan menjadi satu mesin combo (2-in-1) di gym, keduanya memiliki pola gerakan berbeda yang saling melengkapi. Lat Pulldown menggunakan tarikan vertikal (dari atas ke bawah), sedangkan Vertical Row menggunakan tarikan horizontal (dari depan ke belakang).</p>
+              <p class="modal-desc">1. Latihan Punggung yang Efektif</p>
+              <p class="modal-desc">2. Meningkatkan Kekuatan Otot Punggung, Bahu, dan Lengan</p>
+              <p class="modal-desc">3. Membantu Meningkatkan Postur Tubuh dan Keseimbangan Otot</p>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-info"></use></svg>Informasi Alat</h4>
+                <ul class="info-list">
+                  <li><span>Target Latihan</span><strong>Inti tubuh, bahu, kaki &amp; koordinasi</strong></li>
+                  <li><span>Kapasitas Beban</span><strong>4–40 kg per unit</strong></li>
+                  <li><span>Level</span><strong>Menengah–Lanjutan</strong></li>
+                </ul>
+              </div>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-steps"></use></svg>Cara Pemakaian</h4>
+                <ol class="steps-list">
+                  <a href="https://www.youtube.com/watch?v=XYw3LKsW5zg&pp=ygUbVmVydGljYWwgUm93LyBMYXQgUHVsbCBEb3du  " class="btn" target="_blank">Lihat Cara Memakai Alat</a>
+                  <li>Mulai dengan berat ringan untuk mempelajari teknik dasar (swing, goblet squat).</li>
+                  <li>Genggam handle dengan kuat, jaga pergelangan tangan tetap netral.</li>
+                  <li>Gerakkan menggunakan tenaga dari pinggul, bukan hanya lengan.</li>
+                  <li>Letakkan kembali ke rak dalam posisi berdiri setelah selesai digunakan.</li>
+                </ol>
+              </div>
+              <div class="modal-status status-go"><i class="dot"></i>Tersedia 1 Unit</div>
+            </div>
+          </div>
+        </article>
+
+         <!-- 32 Leg Press -->
+        <article class="equipment-item cat-lower">
+          <input type="checkbox" id="modal-legpress" class="modal-toggle">
+          <div class="card">
+            <div class="card-top-row">
+              <span class="tag-hole"></span><span class="card-unit">UNIT NO. 32</span>
+            </div>
+            <div class="card-kicker">Lower Body</div>
+            <div class="gambar.alat">
+            <img src="Leg Presss.jpeg" alt="Universitas" class="campus-image">
+            </div>
+            <h3 class="card-title">Leg Press</h3>
+            <p class="card-brand">Technogym</p>
+            <p class="card-desc">Alat Leg Press adalah mesin latihan beban yang dirancang khusus untuk melatih otot-otot tubuh bagian bawah (lower body). Latihan dilakukan dengan cara mendorong platform beban menggunakan kedua kaki dalam posisi duduk bersandar, baik dengan sudut kemiringan 45 derajat (incline) maupun posisi horizontal.</p>
+            <label for="modal-legpress" class="btn-detail">Lihat Detail <svg aria-hidden="true"><use href="#ic-arrow"></use></svg></label>
+          </div>
+          <div class="modal">
+            <label for="modal-legpress" class="modal-backdrop" aria-hidden="true"></label>
+            <div class="modal-box" role="dialog" aria-label="Detail Leg Press">
+              <label for="modal-legpress" class="modal-close" aria-label="Tutup detail"><svg aria-hidden="true"><use href="#ic-close"></use></svg></label>
+              <div class="modal-top-row"><span class="tag-hole"></span><span class="modal-unit">UNIT NO. 32</span></div>
+              <div class="modal-top">
+                <div class="gambar.alat">
+            <img src="Leg Presss.jpeg" alt="Universitas" class="campus-image">
+            </div>
+                <div><div class="modal-kicker">Lower Body</div><h3>Leg Press</h3><p class="modal-brand">Technogym</p></div>
+              </div>
+              <p class="modal-desc">Alat Leg Press adalah mesin latihan beban yang dirancang khusus untuk melatih otot-otot tubuh bagian bawah (lower body). Latihan dilakukan dengan cara mendorong platform beban menggunakan kedua kaki dalam posisi duduk bersandar, baik dengan sudut kemiringan 45 derajat (incline) maupun posisi horizontal.</p>
+              <p class="modal-desc">1. Latihan Kaki yang Efektif</p>
+              <p class="modal-desc">2. Meningkatkan Kekuatan Otot Kaki, Bokong, dan Paha</p>
+              <p class="modal-desc">3. Membantu Meningkatkan Postur Tub uh dan Keseimbangan Otot</p>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-info"></use></svg>Informasi Alat</h4>
+                <ul class="info-list">
+                  <li><span>Target Latihan</span><strong>Inti tubuh, bahu, kaki &amp; koordinasi</strong></li>
+                  <li><span>Kapasitas Beban</span><strong>4–40 kg per unit</strong></li>
+                  <li><span>Level</span><strong>Menengah–Lanjutan</strong></li>
+                </ul>
+              </div>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-steps"></use></svg>Cara Pemakaian</h4>
+                <ol class="steps-list">
+                  <a href="https://www.youtube.com/shorts/IBcm6r04IHo" class="btn" target="_blank">Lihat Cara Memakai Alat</a>
+                  <li>Mulai dengan berat ringan untuk mempelajari teknik dasar (swing, goblet squat).</li>
+                  <li>Genggam handle dengan kuat, jaga pergelangan tangan tetap netral.</li>
+                  <li>Gerakkan menggunakan tenaga dari pinggul, bukan hanya lengan.</li>
+                  <li>Letakkan kembali ke rak dalam posisi berdiri setelah selesai digunakan.</li>
+                </ol>
+              </div>
+              <div class="modal-status status-go"><i class="dot"></i>Tersedia 1 Unit</div>
+            </div>
+          </div>
+        </article>
+
+         <!-- 33 Elliptical Bike -->
+        <article class="equipment-item cat-lower">
+          <input type="checkbox" id="modal-elliptical" class="modal-toggle">
+          <div class="card">
+            <div class="card-top-row">
+              <span class="tag-hole"></span><span class="card-unit">UNIT NO. 33</span>
+            </div>
+            <div class="card-kicker">Lower Body</div>
+            <div class="gambar.alat">
+            <img src="Elliptical Bike.jpeg" alt="Universitas" class="campus-image">
+            </div>
+            <h3 class="card-title">Elliptical Bike</h3>
+            <p class="card-brand">Technogym</p>
+            <p class="card-desc">Alat Elliptical Bike (sering disebut juga sebagai Elliptical Trainer atau Cross Trainer) adalah alat olahraga kardio yang memadukan gerakan berjalan, berlari, dan memanjat tangga ke dalam satu sistem kayuhan berbentuk elips. Alat ini dilengkapi dengan tuas tangan yang bergerak selaras dengan pijakan kaki.</p>
+            <label for="modal-elliptical" class="btn-detail">Lihat Detail <svg aria-hidden="true"><use href="#ic-arrow"></use></svg></label>
+          </div>
+          <div class="modal">
+            <label for="modal-elliptical" class="modal-backdrop" aria-hidden="true"></label>
+            <div class="modal-box" role="dialog" aria-label="Detail Elliptical Bike">
+              <label for="modal-elliptical" class="modal-close" aria-label="Tutup detail"><svg aria-hidden="true"><use href="#ic-close"></use></svg></label>
+              <div class="modal-top-row"><span class="tag-hole"></span><span class="modal-unit">UNIT NO. 33</span></div>
+              <div class="modal-top">
+                <div class="gambar.alat">
+            <img src="Elliptical Bike.jpeg" alt="Universitas" class="campus-image">
+            </div>
+                <div><div class="modal-kicker">Lower Body</div><h3>Elliptical Bike</h3><p class="modal-brand">Technogym</p></div>
+              </div>
+              <p class="modal-desc">Alat Elliptical Bike (sering disebut juga sebagai Elliptical Trainer atau Cross Trainer) adalah alat olahraga kardio yang memadukan gerakan berjalan, berlari, dan memanjat tangga ke dalam satu sistem kayuhan berbentuk elips. Alat ini dilengkapi dengan tuas tangan yang bergerak selaras dengan pijakan kaki.</p>
+              <p class="modal-desc">1. Latihan Kardio yang Efektif</p>
+              <p class="modal-desc">2. Meningkatkan Kekuatan Otot Kaki, Bokong, dan Paha</p>
+              <p class="modal-desc">3. Membantu Meningkatkan Postur Tub uh dan Keseimbangan Otot</p>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-info"></use></svg>Informasi Alat</h4>
+                <ul class="info-list">
+                  <li><span>Target Latihan</span><strong>Inti tubuh, bahu, kaki &amp; koordinasi</strong></li>
+                  <li><span>Kapasitas Beban</span><strong>4–40 kg per unit</strong></li>
+                  <li><span>Level</span><strong>Menengah–Lanjutan</strong></li>
+                </ul>
+              </div>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-steps"></use></svg>Cara Pemakaian</h4>
+                <ol class="steps-list">
+                  <a href="https://www.youtube.com/watch?v=YWfswVvOaiI&pp=ygUgY2FyYSBtZW5nZ3VuYWthbiBFbGxpcHRpY2FsIEJpa2U%3D" class="btn" target="_blank">Lihat Cara Memakai Alat</a>
+                  <li>Mulai dengan berat ringan untuk mempelajari teknik dasar (swing, goblet squat).</li>
+                  <li>Genggam handle dengan kuat, jaga pergelangan tangan tetap netral.</li>
+                  <li>Gerakkan menggunakan tenaga dari pinggul, bukan hanya lengan.</li>
+                  <li>Letakkan kembali ke rak dalam posisi berdiri setelah selesai digunakan.</li>
+                </ol>
+              </div>
+              <div class="modal-status status-go"><i class="dot"></i>Tersedia 1 Unit</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 34 Adjustable bench -->
+        <article class="equipment-item cat-upper">
+          <input type="checkbox" id="modal-adjustable-bench" class="modal-toggle">
+          <div class="card">
+            <div class="card-top-row">
+              <span class="tag-hole"></span><span class="card-unit">UNIT NO. 34</span>
+            </div>
+            <div class="card-kicker">Upper Body</div>
+            <div class="gambar.alat">
+            <img src="adjus.jpeg" alt="Universitas" class="campus-image">
+            </div>
+            <h3 class="card-title">Adjustable bench</h3>
+            <p class="card-brand">Technogym</p>
+            <p class="card-desc">Alat Adjustable Bench (bangku latihan yang dapat diatur sudutnya) adalah salah satu peralatan paling esensial dan fleksibel di dalam pusat kebugaran maupun home gym. Berbeda dengan bangku statis, alat ini memungkinkan Anda mengubah posisi sandaran punggung dan dudukan mulai dari posisi menurun (decline), mendatar (flat), condong (incline), hingga tegak (upright/military).</p>
+            <label for="modal-adjustable-bench" class="btn-detail">Lihat Detail <svg aria-hidden="true"><use href="#ic-arrow"></use></svg></label>
+          </div>
+          <div class="modal">
+            <label for="modal-adjustable-bench" class="modal-backdrop" aria-hidden="true"></label>
+            <div class="modal-box" role="dialog" aria-label="Detail Adjustable bench">
+              <label for="modal-adjustable-bench" class="modal-close" aria-label="Tutup detail"><svg aria-hidden="true"><use href="#ic-close"></use></svg></label>
+              <div class="modal-top-row"><span class="tag-hole"></span><span class="modal-unit">UNIT NO. 34</span></div>
+              <div class="modal-top">
+                <div class="gambar.alat">
+            <img src="adjus.jpeg" alt="Universitas" class="campus-image">
+            </div>
+                <div><div class="modal-kicker">Upper Body</div><h3>Adjustable bench</h3><p class="modal-brand">Technogym</p></div>
+              </div>
+              <p class="modal-desc">Alat Adjustable Bench (bangku latihan yang dapat diatur sudutnya) adalah salah satu peralatan paling esensial dan fleksibel di dalam pusat kebugaran maupun home gym. Berbeda dengan bangku statis, alat ini memungkinkan Anda mengubah posisi sandaran punggung dan dudukan mulai dari posisi menurun (decline), mendatar (flat), condong (incline), hingga tegak (upright/military).</p>
+              <p class="modal-desc">1. Latihan Beban yang Fleksibel</p>
+              <p class="modal-desc">2. Meningkatkan Kekuatan Otot Dada, Bahu, dan Lengan</p>
+              <p class="modal-desc">3. Membantu Meningkatkan Postur Tubuh dan Keseimbangan Otot</p>
+              <p class="modal-desc">4. Meningkatkan Kekuatan dan Stabilitas Otot Inti</p>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-info"></use></svg>Informasi Alat</h4>
+                <ul class="info-list">
+                  <li><span>Target Latihan</span><strong>Inti tubuh, bahu, kaki &amp; koordinasi</strong></li>
+                  <li><span>Kapasitas Beban</span><strong>4–40 kg per unit</strong></li>
+                  <li><span>Level</span><strong>Menengah–Lanjutan</strong></li>
+                </ul>
+              </div>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-steps"></use></svg>Cara Pemakaian</h4>
+                <ol class="steps-list">
+                  <a href="https://www.youtube.com/shorts/_sgEFmQ_-Y0" class="btn" target="_blank">Lihat Cara Memakai Alat</a>
+                  <li>Mulai dengan berat ringan untuk mempelajari teknik dasar (swing, goblet squat).</li>
+                  <li>Genggam handle dengan kuat, jaga pergelangan tangan tetap netral.</li>
+                  <li>Gerakkan menggunakan tenaga dari pinggul, bukan hanya lengan.</li>
+                  <li>Letakkan kembali ke rak dalam posisi berdiri setelah selesai digunakan.</li>
+                </ol>
+              </div>
+              <div class="modal-status status-go"><i class="dot"></i>Tersedia 1 Unit</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 35 Flexability Anterior -->
+        <article class="equipment-item cat-lower">
+          <input type="checkbox" id="modal-Flexability Anterior" class="modal-toggle">
+          <div class="card">
+            <div class="card-top-row">
+              <span class="tag-hole"></span><span class="card-unit">UNIT NO. 35</span>
+            </div>
+            <div class="card-kicker">Lower Body</div>
+            <div class="gambar.alat">
+            <img src="flex.jpeg" alt="Universitas" class="campus-image">
+            </div>
+            <h3 class="card-title">Flexability Anterior</h3>
+            <p class="card-brand">Technogym</p>
+            <p class="card-desc">Alat Flexability Anterior (alat latihan fleksibel untuk area anterior tubuh) adalah salah satu peralatan paling esensial dan fleksibel di dalam pusat kebugaran maupun home gym. Berbeda dengan alat statis, alat ini memungkinkan Anda mengubah posisi sandaran punggung dan dudukan mulai dari posisi menurun (decline), mendatar (flat), condong (incline), hingga tegak (upright/military).</p>
+            <label for="modal-Flexability Anterior" class="btn-detail">Lihat Detail <svg aria-hidden="true"><use href="#ic-arrow"></use></svg></label>
+          </div>
+          <div class="modal">
+            <label for="modal-Flexability Anterior" class="modal-backdrop" aria-hidden="true"></label>
+            <div class="modal-box" role="dialog" aria-label="Detail Flexability Anterior">
+              <label for="modal-Flexability Anterior" class="modal-close" aria-label="Tutup detail"><svg aria-hidden="true"><use href="#ic-close"></use></svg></label>
+              <div class="modal-top-row"><span class="tag-hole"></span><span class="modal-unit">UNIT NO. 35</span></div>
+              <div class="modal-top">
+                <div class="gambar.alat">
+            <img src="flex.jpeg" alt="Universitas" class="campus-image">
+            </div>
+                <div><div class="modal-kicker">Lower Body</div><h3>Flexability Anterior</h3><p class="modal-brand">Technogym</p></div>
+              </div>
+              <p class="modal-desc">Alat Flexability Anterior (alat latihan fleksibel untuk area anterior tubuh) adalah salah satu peralatan paling esensial dan fleksibel di dalam pusat kebugaran maupun home gym. Berbeda dengan alat statis, alat ini memungkinkan Anda mengubah posisi sandaran punggung dan dudukan mulai dari posisi menurun (decline), mendatar (flat), condong (incline), hingga tegak (upright/military).</p>
+              <p class="modal-desc">1. Latihan Beban yang Fleksibel</p>
+              <p class="modal-desc">2. Meningkatkan Kekuatan Otot Dada, Bahu, dan Lengan</p>
+              <p class="modal-desc">3. Membantu Meningkatkan Postur Tubuh dan Keseimbangan Otot</p>
+              <p class="modal-desc">4. Meningkatkan Kekuatan dan Stabilitas Otot Inti</p>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-info"></use></svg>Informasi Alat</h4>
+                <ul class="info-list">
+                  <li><span>Target Latihan</span><strong>Inti tubuh, bahu, kaki &amp; koordinasi</strong></li>
+                  <li><span>Kapasitas Beban</span><strong>4–40 kg per unit</strong></li>
+                  <li><span>Level</span><strong>Menengah–Lanjutan</strong></li>
+                </ul>
+              </div>
+              <div class="modal-section">
+                <h4><svg aria-hidden="true"><use href="#ic-steps"></use></svg>Cara Pemakaian</h4>
+                <ol class="steps-list">
+                  <a href="https://www.youtube.com/watch?v=YDyI0SzDmvA&pp=ygUVRmxleGFiaWxpdHkgQW50ZXJpb3Ig" class="btn" target="_blank">Lihat Cara Memakai Alat</a>
+                  <li></li>
+                </ol>
+              </div>
+              <div class="modal-status status-go"><i class="dot"></i>Tersedia 1 Unit</div>
+            </div>
+          </div>
+        </article>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- TENTANG / FASILITAS -->
+  <section id="tentang" class="about-section">
+    <div class="container">
+      <div class="about-head">
+        <p class="eyebrow">Fasilitas Yang Tersedia</p>
+        <h2 class="section-title">Lab Fitness FIK</h2>
+      </div>
+      <div class="about-grid">
+        <div class="about-card">
+          <svg class="about-icon" aria-hidden="true"><use href="#ic-clock"></use></svg>
+          <h3>Jam Operasional</h3>
+          <p>Senin–Kamis pukul 08.00–16.00 WIB, Jumat-Minggu tidak dibuka.</p>
+        </div>
+        <div class="about-card">
+          <svg class="about-icon" aria-hidden="true"><use href="#ic-shield"></use></svg>
+          <h3>Kemanan</h3>
+          <p>Tersedia CCTV untuk mengawasi keamanan didalam ruangan.</p>
+        </div>
+        <div class="about-card">
+          <svg class="about-icon" aria-hidden="true"><use href="#ic-gear"></use></svg>
+          <h3>Alat Terawat</h3>
+          <p>Diperiksa dan dikalibrasi berkala demi kenyamanan dan keselamatan pengguna.</p>
+        </div>
+        <div class="about-card">
+          <svg class="about-icon" aria-hidden="true"><use href="#ic-wind"></use></svg>
+          <h3>Ruang Nyaman &amp; Bersih</h3>
+          <p>Area dengan ventilasi baik dan dilengkapi dengan pendingin ruangan, dilengkapi kamar mandi bersih.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer id="kontak" class="site-footer">
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="#beranda" class="logo">
+          <svg class="logo-icon" aria-hidden="true"><use href="#ic-logo"></use></svg>
+          <span class="logo-text">Lab<span class="accent">Fitness</span></span>
+        </a>
+        <p>Informasi lengkap alat-alat yang berada di Lab Fitnes Fakultas Ilmu Keolahragaan di Universitas Negeri Medan..</p>
+      </div>
+      <div class="footer-col">
+        <h4>Tautan</h4>
+        <div class="footer-links">
+          <a href="#beranda">Beranda</a>
+          <a href="#alat">Alat</a>
+          <a href="#tentang">Tentang</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Kontak</h4>
+        <ul class="footer-contact">
+          <li><svg aria-hidden="true"><use href="#ic-pin"></use></svg><span>Jl. William Iskandar Ps. V, Kenangan Baru, Kec. Percut Sei Tuan, Kabupaten Deli Serdang, Sumatera Utara 20221</span></li>
+          <li><svg aria-hidden="true"><use href="#ic-phone"></use></svg><span>+62 812-3456-7890</span></li>
+          <li><svg aria-hidden="true"><use href="#ic-mail"></use></svg><span>halo@ironcoregym.id</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">© 2026 LAB FITNESS FIK. Seluruh hak cipta dilindungi.</div>
+  </div>
+</footer>
+
+   <script>
+  // Ambil semua link di dalam nav-menu
+  const navLinks = document.querySelectorAll('.nav-menu a');
+  const navToggle = document.getElementById('nav-toggle');
+
+  // Ketika salah satu link menu diklik, matikan centang checkbox-nya
+  navLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      if (navToggle) {
+        navToggle.checked = false;
+      }
+    });
+  });
+  
+function searchEquipment() {
+    let input = document.getElementById("searchInput");
+    let filter = input.value.toUpperCase();
+
+    let items = document.querySelectorAll(".equipment-item");
+
+    items.forEach(function(item) {
+        let title = item.querySelector(".card-title");
+
+        if (title) {
+            let text = title.textContent || title.innerText;
+
+            if (text.toUpperCase().indexOf(filter) > -1) {
+                item.style.display = "";
+            } else {
+                item.style.display = "none";
+            }
+        }
+    });
+}
+function resetSearch() {
+    document.getElementById("searchInput").value = "";
+
+    let items = document.querySelectorAll(".equipment-item");
+
+    items.forEach(function(item) {
+        item.style.display = "";
+    });
+}
+</script>
+</body>
+</html>
